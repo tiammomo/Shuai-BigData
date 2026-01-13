@@ -1,0 +1,217 @@
+# 大数据组件 Docker Compose
+# 使用方法: docker-compose up -d
+
+version: '3.8'
+
+services:
+  ############################################################################
+  # Zookeeper
+  ############################################################################
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: bigdata-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - bigdata-network
+
+  ############################################################################
+  # Kafka
+  ############################################################################
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: bigdata-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+    ports:
+      - "9092:9092"
+    networks:
+      - bigdata-network
+
+  ############################################################################
+  # Flink JobManager
+  ############################################################################
+  flink-jobmanager:
+    image: flink:1.17
+    container_name: bigdata-flink-jobmanager
+    depends_on:
+      - kafka
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        jobmanager.rpc.port: 6123
+        jobmanager.memory.process.size: 2G
+        taskmanager.memory.process.size: 4G
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 4
+        execution.checkpointing.interval: 1min
+        state.backend: rocksdb
+        state.backend.incremental: true
+    ports:
+      - "8081:8081"
+      - "6121:6121"
+      - "6122:6122"
+      - "6123:6123"
+    command: jobmanager
+    networks:
+      - bigdata-network
+
+  ############################################################################
+  # Flink TaskManager
+  ############################################################################
+  flink-taskmanager:
+    image: flink:1.17
+    container_name: bigdata-flink-taskmanager
+    depends_on:
+      - flink-jobmanager
+    environment:
+      FLINK_PROPERTIES: |
+        taskmanager.memory.process.size: 4G
+        taskmanager.numberOfTaskSlots: 4
+    command: taskmanager
+    networks:
+      - bigdata-network
+
+  ############################################################################
+  # Doris FE
+  ############################################################################
+  doris-fe:
+    image: apache/doris:2.0.13-fe
+    container_name: bigdata-doris-fe
+    environment:
+      FE_SERVERS: fe1:127.0.0.1:9010
+      FE_ID: 1
+    ports:
+      - "8030:8030"
+      - "9010:9010"
+      - "9030:9030"
+    networks:
+      - bigdata-network
+    volumes:
+      - doris-fe:/opt/doris/fe
+
+  ############################################################################
+  # Doris BE
+  ############################################################################
+  doris-be:
+    image: apache/doris:2.0.13-be
+    container_name: bigdata-doris-be
+    depends_on:
+      - doris-fe
+    environment:
+      FE_SERVERS: fe1:127.0.0.1:9010
+      BE_HEARTBEAT_SERVICE_PORT: 9050
+      BE_WEBSERVER_PORT: 8040
+    ports:
+      - "9050:9050"
+      - "8040:8040"
+    networks:
+      - bigdata-network
+    volumes:
+      - doris-be:/opt/doris/be
+
+  ############################################################################
+  # ClickHouse
+  ############################################################################
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.12
+    container_name: bigdata-clickhouse
+    environment:
+      CLICKHOUSE_DB: bigdata
+      CLICKHOUSE_USER: root
+      CLICKHOUSE_PASSWORD: root
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    networks:
+      - bigdata-network
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - clickhouse-logs:/var/log/clickhouse
+
+  ############################################################################
+  # Redis
+  ############################################################################
+  redis:
+    image: redis:7.2
+    container_name: bigdata-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    networks:
+      - bigdata-network
+    volumes:
+      - redis-data:/data
+
+  ############################################################################
+  # MySQL
+  ############################################################################
+  mysql:
+    image: mysql:8.0
+    container_name: bigdata-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bigdata
+    ports:
+      - "3306:3306"
+    networks:
+      - bigdata-network
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  ############################################################################
+  # Elasticsearch
+  ############################################################################
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11
+    container_name: bigdata-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - bigdata-network
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+  ############################################################################
+  # Kibana (可选)
+  ############################################################################
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11
+    container_name: bigdata-kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - bigdata-network
+
+networks:
+  bigdata-network:
+    driver: bridge
+
+volumes:
+  doris-fe:
+  doris-be:
+  clickhouse-data:
+  clickhouse-logs:
+  redis-data:
+  mysql-data:
+  es-data:

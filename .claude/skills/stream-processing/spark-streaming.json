@@ -1,0 +1,58 @@
+{
+  "name": "Spark Streaming",
+  "description": "基于微批处理的流处理框架，与 Spark 生态深度集成，支持 DStream 抽象",
+  "category": "流处理",
+  "key_concepts": [
+    "DStream - 离散流抽象，由连续 RDD 组成",
+    "微批处理 - Batch Interval 批次间隔",
+    "窗口操作 - Window / Slide 滑动窗口",
+    "检查点 - Checkpoint 容错恢复",
+    "背压控制 - Backpressure 速率控制",
+    "Receiver - 数据接收模式",
+    "状态更新 - updateStateByKey / mapWithState",
+    "Direct 模式 - Kafka Direct API",
+    "StreamingContext - 流处理入口"
+  ],
+  "configurations": {
+    "batch": {
+      "spark.streaming.batchDuration": "1s",
+      "spark.streaming.receiver.maxRate": "10000"
+    },
+    "memory": {
+      "spark.executor.memory": "4G",
+      "spark.streaming.memory.fraction": "0.6"
+    },
+    "checkpoint": {
+      "spark.streaming.checkpointDir": "/checkpoint",
+      "spark.streaming.checkpointInterval": "10s"
+    }
+  },
+  "common_operations": [
+    "ssc.start()",
+    "ssc.awaitTermination()",
+    "ssc.stop(stopSparkContext=true)",
+    "ssc.checkpoint(path)"
+  ],
+  "integrations": [
+    "Kafka -> Spark Streaming (Receiver/Direct)",
+    "Spark Streaming -> HDFS (saveAsTextFiles)",
+    "Spark Streaming -> DB (foreachRDD)"
+  ],
+  "best_practices": [
+    "根据延迟要求调整 Batch Interval",
+    "使用 Kryo 序列化提升性能",
+    "合理设置 Receiver 并行度",
+    "及时清理 Checkpoint 目录",
+    "大表使用 Broadcast Join"
+  ],
+  "use_cases": [
+    "实时日志分析",
+    "消息队列消费",
+    "持续 ETL 作业",
+    "批流一体处理"
+  ],
+  "related_docs": [
+    "docs/01-stream-processing/spark/03-spark-streaming.md",
+    "docs/01-stream-processing/spark/01-architecture.md"
+  ]
+}

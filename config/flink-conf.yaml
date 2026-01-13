@@ -1,0 +1,67 @@
+# Flink 配置文件
+# 位置: $FLINK_HOME/conf/flink-conf.yaml
+
+################################################################################
+# 基础配置
+################################################################################
+jobmanager.rpc.address: localhost
+jobmanager.rpc.port: 6123
+jobmanager.memory.process.size: 2G
+jobmanager.memory.flink.size: 1.5G
+
+taskmanager.numberOfTaskSlots: 4
+taskmanager.memory.process.size: 4G
+taskmanager.memory.flink.size: 3G
+
+parallelism.default: 4
+
+################################################################################
+# Checkpoint 配置
+################################################################################
+execution.checkpointing.interval: 1min
+execution.checkpointing.mode: EXACTLY_ONCE
+execution.checkpointing.timeout: 10min
+execution.checkpointing.incremental: true
+execution.checkpointing.externalized-checkpoint-retention: RETAIN_ON_CANCELLATION
+
+# State Backend
+state.backend: rocksdb
+state.backend.incremental: true
+state.backend.rocksdb.memory.managed: true
+state.backend.rocksdb.memory.fixed-per-slot: 256M
+state.backend.rocksdb.memory.write-buffer-ratio: 0.5
+
+################################################################################
+# 内存配置
+################################################################################
+taskmanager.memory.framework.off-heap.size: 128M
+taskmanager.memory.managed.fraction: 0.4
+taskmanager.memory.managed.max-consumption: 0.8
+
+################################################################################
+# 网络配置
+################################################################################
+taskmanager.network.memory.fraction: 0.1
+taskmanager.network.memory.min: 64M
+taskmanager.network.memory.max: 1G
+
+################################################################################
+# Web UI
+################################################################################
+rest.port: 8081
+rest.address: 0.0.0.0
+
+################################################################################
+# 日志配置
+################################################################################
+akka.ask.timeout: 60s
+akka.tcp.timeout: 60s
+
+################################################################################
+# 安全性配置 (可选)
+################################################################################
+# security.ssl.internal.enabled: true
+# security.ssl.internal.keystore: /path/to/keystore.jks
+# security.ssl.internal.keystore-password: password
+# security.ssl.internal.truststore: /path/to/truststore.jks
+# security.ssl.internal.truststore-password: password

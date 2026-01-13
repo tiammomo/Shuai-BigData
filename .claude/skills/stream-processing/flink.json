@@ -1,0 +1,69 @@
+{
+  "name": "Apache Flink",
+  "description": "分布式流处理引擎，支持精确一次语义、状态管理、窗口操作、Checkpoint",
+  "category": "流处理",
+  "key_concepts": [
+    "DataStream API - 基础流处理编程模型",
+    "Table API/SQL - 声明式流处理语言",
+    "有状态计算 - Keyed State / Operator State / Broadcast State",
+    "窗口操作 - Tumbling / Sliding / Session / Global",
+    "时间语义 - Event Time / Processing Time / Ingestion Time",
+    "Watermark - 水位线，事件时间进度标记",
+    "Checkpoint - 精确一次容错机制",
+    "Savepoint - 手动触发的状态快照",
+    "CEP - 复杂事件处理模式匹配",
+    "异步 I/O - 异步访问外部系统",
+    "背压处理 - 反压机制和解决策略",
+    "双流 Join - 事件时间双流关联"
+  ],
+  "configurations": {
+    "checkpoint": {
+      "execution.checkpointing.interval": "1min",
+      "execution.checkpointing.mode": "EXACTLY_ONCE",
+      "execution.checkpointing.timeout": "10min",
+      "state.backend": "rocksdb"
+    },
+    "parallelism": {
+      "parallelism.default": "4",
+      "taskmanager.numberOfTaskSlots": "2"
+    },
+    "memory": {
+      "taskmanager.memory.process.size": "4G",
+      "taskmanager.memory.flink.size": "3G"
+    }
+  },
+  "common_operations": [
+    "flink run -p 4 -c com.example.Job jarFile.jar",
+    "flink savepoint <jobId> [targetDirectory]",
+    "flink cancel -s [targetDirectory] <jobId>",
+    "flink list",
+    "flink info <jobId>"
+  ],
+  "integrations": [
+    "Kafka -> Flink (KafkaSource/KafkaSink)",
+    "Flink -> ClickHouse (JDBC Sink)",
+    "Flink -> Doris (Doris Stream Load)",
+    "Flink -> HDFS (StreamingFileSink)"
+  ],
+  "best_practices": [
+    "使用 Event Time 处理乱序数据",
+    "合理设置 Watermark 策略",
+    "定期做 Savepoint 用于版本升级",
+    "使用异步 I/O 提升外部访问吞吐",
+    "状态后端选择 RocksDB 避免 OOM"
+  ],
+  "use_cases": [
+    "实时数据ETL",
+    "实时指标统计",
+    "风控规则检测",
+    "实时推荐系统"
+  ],
+  "related_docs": [
+    "docs/01-stream-processing/flink/01-architecture.md",
+    "docs/01-stream-processing/flink/02-datastream.md",
+    "docs/01-stream-processing/flink/03-table-sql.md",
+    "docs/01-stream-processing/flink/04-state-checkpoint.md",
+    "docs/01-stream-processing/flink/05-cep.md",
+    "docs/01-stream-processing/flink/06-operations.md"
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "name": "Apache Kafka",
+  "description": "高吞吐量分布式消息队列，支持消息持久化、流处理和事件溯源",
+  "category": "消息队列",
+  "key_concepts": [
+    "Broker - 消息代理节点，存储消息",
+    "Topic - 消息主题，逻辑分类",
+    "Partition - 消息分区，并行处理",
+    "Replica - 副本机制，高可用保证",
+    "ISR - 同步副本集，数据一致性",
+    "Leader/Follower - 主从复制",
+    "Producer - 消息生产者",
+    "Consumer - 消息消费者",
+    "Consumer Group - 消费者组，负载均衡",
+    "Offset - 消费位移，记录消费位置",
+    "Rebalance - 分区再分配，组成员变化",
+    "Kafka Streams - 轻量级流处理引擎",
+    "Controller - 集群控制器",
+    "Log Compaction - 日志压缩"
+  ],
+  "configurations": {
+    "broker": {
+      "num.network.threads": "8",
+      "num.io.threads": "32",
+      "socket.send.buffer.bytes": "102400",
+      "socket.receive.buffer.bytes": "102400",
+      "socket.request.max.bytes": "104857600"
+    },
+    "topic": {
+      "log.segment.bytes": "1073741824",
+      "log.retention.hours": "168",
+      "log.retention.check.interval.ms": "300000"
+    },
+    "replica": {
+      "default.replication.factor": "3",
+      "min.insync.replicas": "2"
+    },
+    "producer": {
+      "acks": "all",
+      "retries": "3",
+      "batch.size": "16384",
+      "linger.ms": "5",
+      "compression.type": "lz4"
+    },
+    "consumer": {
+      "fetch.min.bytes": "1",
+      "fetch.max.wait.ms": "500",
+      "auto.offset.reset": "earliest"
+    }
+  },
+  "common_operations": [
+    "kafka-topics.sh --create --topic test --partitions 3 --replication-factor 2",
+    "kafka-topics.sh --describe --topic test",
+    "kafka-topics.sh --alter --topic test --partitions 4",
+    "kafka-console-producer.sh --broker-list localhost:9092 --topic test",
+    "kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test",
+    "kafka-consumer-groups.sh --describe --group group1",
+    "kafka-consumer-groups.sh --reset-offsets --group group1 --topic test --to-earliest",
+    "kafka-reassign-partitions.sh --execute --reassignment-json-file reassign.json"
+  ],
+  "integrations": [
+    "Logs -> Kafka (Filebeat/Fluentd)",
+    "App -> Kafka (Producer API)",
+    "Kafka -> Flink (KafkaSource/KafkaSink)",
+    "Kafka -> Spark Streaming (KafkaUtils)",
+    "Kafka -> ClickHouse (Kafka Engine Table)"
+  ],
+  "best_practices": [
+    "根据吞吐量合理设置分区数",
+    "使用压缩提升传输效率",
+    "合理设置消息大小和批次",
+    "监控消费延迟及时处理积压",
+    "开启合理副本保证高可用"
+  ],
+  "use_cases": [
+    "日志收集系统",
+    "消息总线",
+    "事件驱动架构",
+    "实时数据管道"
+  ],
+  "related_docs": [
+    "docs/02-message-queue/kafka/01-architecture.md",
+    "docs/02-message-queue/kafka/02-producer.md",
+    "docs/02-message-queue/kafka/03-consumer.md",
+    "docs/02-message-queue/kafka/04-streams.md",
+    "docs/02-message-queue/kafka/05-operations.md",
+    "docs/02-message-queue/kafka/06-troubleshooting.md"
+  ]
+}

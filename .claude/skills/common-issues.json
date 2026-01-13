@@ -1,0 +1,52 @@
+{
+  "name": "常见问题与解决方案",
+  "description": "大数据处理过程中的常见问题及解决方案",
+  "issues": [
+    {
+      "issue": "数据倾斜",
+      "description": "数据分布不均匀导致部分任务处理时间过长",
+      "solutions": {
+        "Flink": "加盐打散 Key，两阶段聚合",
+        "Spark": "加盐、打散、广播小表、过滤空值",
+        "Kafka": "增加分区数，均衡负载",
+        "ClickHouse": "修改分桶策略，重建表"
+      }
+    },
+    {
+      "issue": "背压/积压",
+      "description": "下游处理速度跟不上上游生产速度",
+      "solutions": {
+        "Flink": "增加并行度，优化算子，检查状态大小",
+        "Spark Streaming": "增加批间隔，优化代码，增加 Receiver",
+        "Kafka": "增加消费者，提升消费能力"
+      }
+    },
+    {
+      "issue": "内存溢出",
+      "description": "JVM 内存不足导致程序崩溃",
+      "solutions": {
+        "Flink": "使用 RocksDB 状态后端，调整 TaskManager 内存",
+        "Spark": "增加 Executor 内存，使用 Kryo 序列化",
+        "ClickHouse": "调整 max_memory_usage，优化查询"
+      }
+    },
+    {
+      "issue": "任务失败",
+      "description": "任务异常退出或超时",
+      "solutions": {
+        "Flink": "检查 Checkpoint 状态，查看异常日志",
+        "Spark": "检查 Executor 日志，调整重试次数",
+        "Kafka": "检查消费者组状态，重新平衡"
+      }
+    },
+    {
+      "issue": "数据丢失",
+      "description": "消息或数据未正确处理",
+      "solutions": {
+        "Flink": "开启 Checkpoint EXACTLY_ONCE",
+        "Kafka": "设置合理的 acks 和 retention",
+        "Spark": "使用 Checkpoint 持久化状态"
+      }
+    }
+  ]
+}

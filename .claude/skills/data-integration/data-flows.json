@@ -1,0 +1,27 @@
+{
+  "name": "数据流架构",
+  "description": "端到端数据处理流水线架构",
+  "category": "数据集成",
+  "data_flows": [
+    {
+      "name": "实时数仓",
+      "flow": "Kafka -> Flink (ETL) -> Kafka (DW) -> ClickHouse/Doris (OLAP) -> BI",
+      "description": "实时数据采集、处理、存储和展示"
+    },
+    {
+      "name": "批处理分析",
+      "flow": "HDFS/Hive -> Spark (ETL) -> HDFS -> ClickHouse/Doris -> BI",
+      "description": "离线数据批量处理和多维分析"
+    },
+    {
+      "name": "Lambda 架构",
+      "flow": "实时: Kafka -> Flink -> Doris, 批处理: Hive -> Spark -> Doris -> 合并",
+      "description": "批流一体，兼顾实时和离线"
+    },
+    {
+      "name": "Kappa 架构",
+      "flow": "Kafka -> Flink -> Doris (统一处理)",
+      "description": "全链路流处理，统一批流语义"
+    }
+  ]
+}

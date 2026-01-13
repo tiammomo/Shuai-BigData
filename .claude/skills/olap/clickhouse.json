@@ -1,0 +1,67 @@
+{
+  "name": "ClickHouse",
+  "description": "列式存储分析数据库，支持高并发实时 OLAP 查询，擅长聚合分析",
+  "category": "OLAP",
+  "key_concepts": [
+    "MergeTree - 主表引擎家族基础",
+    "ReplicatedMergeTree - 支持副本的 MergeTree",
+    "Distributed - 分布式查询引擎",
+    "Partition - 分区裁剪优化",
+    "Primary Key - 主键和索引粒度",
+    "Data Skip Indexes - 跳数索引（Bloom Filter/MinMax）",
+    "Materialized View - 物化视图预聚合",
+    "Dictionary - 字典表关联查询",
+    "TTL - 数据生命周期管理",
+    "Mutation - 数据修改操作",
+    "Collation - 排序规则",
+    "Sampling - 表采样查询"
+  ],
+  "configurations": {
+    "server": {
+      "max_concurrent_queries": "100",
+      "max_memory_usage": "32G",
+      "max_table_size_to_drop": "50GB"
+    },
+    "merge_tree": {
+      "max_merge_thread_size": "8",
+      "number_of_free_database_tables_to_allow_drop": "50"
+    },
+    "merge": {
+      "max_bytes_to_merge_at_min_space_in_pool": "1024Mb",
+      "max_bytes_to_merge_at_max_space_in_pool": "50Gb"
+    }
+  },
+  "common_operations": [
+    "clickhouse-client --host=localhost --port=9000",
+    "CREATE TABLE ... ENGINE = MergeTree()",
+    "OPTIMIZE TABLE table_name FINAL",
+    "SYSTEM MERGE table_name",
+    "SYSTEM REPLICAS",
+    "KILL QUERY WHERE query_id='xxx'"
+  ],
+  "integrations": [
+    "Kafka -> ClickHouse (Kafka Engine / Materialized View)",
+    "Flink -> ClickHouse (JDBC Sink)",
+    "Spark -> ClickHouse (JDBC)",
+    "HTTP API -> ClickHouse"
+  ],
+  "best_practices": [
+    "合理设计主键和排序键",
+    "使用分区裁剪减少扫描量",
+    "善用物化视图加速查询",
+    "使用字典表替代 JOIN",
+    "合理设置 TTL 清理历史数据"
+  ],
+  "use_cases": [
+    "用户行为分析",
+    "实时报表",
+    "日志分析",
+    "AB Testing"
+  ],
+  "related_docs": [
+    "docs/03-olap/clickhouse/01-architecture.md",
+    "docs/03-olap/clickhouse/02-merge-tree.md",
+    "docs/03-olap/clickhouse/03-data-operations.md",
+    "docs/03-olap/clickhouse/04-optimization.md"
+  ]
+}

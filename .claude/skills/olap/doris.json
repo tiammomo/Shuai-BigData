@@ -1,0 +1,71 @@
+{
+  "name": "Apache Doris",
+  "description": "基于 MPP 架构的分析型数据库，支持高并发实时查询，MySQL 协议兼容",
+  "category": "OLAP",
+  "key_concepts": [
+    "FE - 前端节点，SQL 解析和查询调度",
+    "BE - 后端节点，数据存储和查询执行",
+    "Tablet - 数据分片，最小存储单元",
+    "Partition - 逻辑分区，支持 Range/List",
+    "Rollup - 物化索引，加速查询",
+    "Unique Model - 唯一键模型，支持 UPSERT",
+    "Aggregate Model - 聚合模型，预聚合",
+    "Duplicate Model - 明细模型，保留所有数据",
+    "Bloom Filter - 布隆过滤器，加速点查",
+    "物化视图 - Materialized View 自动选择",
+    "Colocate Join - 本地 Join 优化",
+    "Bucket Shuffle Join - 分桶 Join 优化"
+  ],
+  "configurations": {
+    "fe": {
+      "http_port": 8030,
+      "rpc_port": 9010,
+      "query_port": 9030,
+      "edit_log_port": 9010
+    },
+    "be": {
+      "be_port": 9050,
+      "webserver_port": 8040,
+      "heartbeat_service_port": 9050,
+      "brpc_port": 8060
+    },
+    "storage": {
+      "storage_root_path": "/data/doris/be/storage",
+      "max_tablet_version_num": "500"
+    }
+  },
+  "common_operations": [
+    "mysql -h fe_host -P 9030 -u root",
+    "SHOW FRONTENDS / SHOW BACKENDS",
+    "ALTER SYSTEM ADD BACKEND 'be_host:9050'",
+    "ALTER SYSTEM DECOMMISSION BACKEND 'be_host:9050'",
+    "ADMIN SHOW REPLICA DISTRIBUTION FROM table_name",
+    "SHOW PROC '/cluster_health/tablet_health'"
+  ],
+  "integrations": [
+    "Kafka -> Doris (Routine Load)",
+    "Flink -> Doris (Doris Stream Load)",
+    "Spark -> Doris (Spark-Doris-Connector)",
+    "Hive -> Doris (INSERT INTO SELECT)"
+  ],
+  "best_practices": [
+    "合理选择数据模型",
+    "分区键和时间相关",
+    "分桶键选高基数字段",
+    "使用物化视图加速查询",
+    "开启 AQE 优化查询"
+  ],
+  "use_cases": [
+    "实时报表分析",
+    "多维数据分析",
+    "用户画像查询",
+    "实时指标看板"
+  ],
+  "related_docs": [
+    "docs/03-olap/doris/01-architecture.md",
+    "docs/03-olap/doris/02-data-model.md",
+    "docs/03-olap/doris/03-data-operations.md",
+    "docs/03-olap/doris/04-sql-reference.md",
+    "docs/03-olap/doris/05-operations.md"
+  ]
+}

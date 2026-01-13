@@ -1,0 +1,74 @@
+{
+  "name": "Apache Spark",
+  "description": "统一的大数据分析引擎，支持批处理、SQL、流处理和机器学习",
+  "category": "批处理",
+  "key_concepts": [
+    "RDD - 弹性分布式数据集，核心抽象",
+    "DataFrame - 结构化数据 API",
+    "Dataset - 强类型 DataFrame",
+    "DAG - 有向无环图，执行计划",
+    "Stage - 执行阶段，Shuffle 划分",
+    "Task - 任务单元，Executor 执行",
+    "Shuffle - 数据混洗，分布式聚合",
+    "Broadcast - 广播变量，共享只读数据",
+    "Accumulator - 累加器，分布式计数",
+    "Checkpoint - 检查点，截断 lineage",
+    "Partition - 数据分区，并行处理",
+    "宽依赖/窄依赖 - Shuffle 判断依据"
+  ],
+  "configurations": {
+    "executor": {
+      "spark.executor.instances": "10",
+      "spark.executor.cores": "4",
+      "spark.executor.memory": "8G",
+      "spark.executor.memoryOverhead": "2G"
+    },
+    "driver": {
+      "spark.driver.memory": "4G",
+      "spark.driver.maxResultSize": "2G"
+    },
+    "shuffle": {
+      "spark.sql.shuffle.partitions": "200",
+      "spark.sql.adaptive.enabled": "true"
+    },
+    "memory": {
+      "spark.memory.fraction": "0.6",
+      "spark.memory.storageFraction": "0.5",
+      "spark.serializer": "org.apache.spark.serializer.KryoSerializer"
+    }
+  },
+  "common_operations": [
+    "spark-submit --class com.example.Job --master yarn --deploy-mode cluster app.jar",
+    "spark-shell --master local[*]",
+    "spark.sql('SELECT * FROM table')",
+    "rdd.cache() / rdd.persist()",
+    "df.explain(true)",
+    "sc.getPersistentRDDs"
+  ],
+  "integrations": [
+    "HDFS -> Spark (textFile / parquet)",
+    "Hive -> Spark (spark.sqlHive)",
+    "Kafka -> Spark (Structured Streaming)",
+    "Spark -> MySQL / PostgreSQL (JDBC)"
+  ],
+  "best_practices": [
+    "复用 RDD，避免重复计算",
+    "使用 cache/persist 缓存热点数据",
+    "广播小表避免 Shuffle",
+    "使用 reduceByKey 替代 groupByKey",
+    "开启 AQE 优化查询执行",
+    "合理设置分区数"
+  ],
+  "use_cases": [
+    "ETL 数据处理",
+    "大规模数据分析",
+    "机器学习训练",
+    "图计算"
+  ],
+  "related_docs": [
+    "docs/01-stream-processing/spark/01-architecture.md",
+    "docs/01-stream-processing/spark/02-spark-sql.md",
+    "docs/01-stream-processing/spark/04-mllib.md",
+    "docs/01-stream-processing/spark/05-optimization.md"
+  ]
+}

@@ -1,0 +1,60 @@
+# 轻量级 Docker Compose (仅核心组件)
+# 使用方法: docker-compose -f docker-compose.light.yml up -d
+
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: bigdata-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: bigdata-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+    ports:
+      - "9092:9092"
+
+  flink-jobmanager:
+    image: flink:1.17
+    container_name: bigdata-flink-jobmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        jobmanager.memory.process.size: 1G
+        taskmanager.memory.process.size: 2G
+    ports:
+      - "8081:8081"
+    command: jobmanager
+
+  flink-taskmanager:
+    image: flink:1.17
+    container_name: bigdata-flink-taskmanager
+    environment:
+      FLINK_PROPERTIES: |
+        taskmanager.memory.process.size: 2G
+        taskmanager.numberOfTaskSlots: 2
+    command: taskmanager
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.12
+    container_name: bigdata-clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+
+  redis:
+    image: redis:7.2
+    container_name: bigdata-redis
+    ports:
+      - "6379:6379"

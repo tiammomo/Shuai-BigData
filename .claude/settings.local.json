@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for f in *_TUTORIAL.md)",
+      "Bash(do:*)",
+      "Bash(then:*)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(tree:*)",
+      "Bash(for dir in d:/projects/shuai/Shuai-BigData/docs/*/*/)",
+      "Bash(echo:*)",
+      "Bash(ls -1:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git init:*)"
+    ]
+  }
+}
