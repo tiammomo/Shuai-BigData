@@ -17,25 +17,25 @@ When generating git commit messages:
 
 ## Project Context
 
-Shuai-BigData is a comprehensive big data technology learning project covering 21+ major big data components.
+Shuai-BigData is a comprehensive big data technology learning project covering 23+ major big data components.
 
 ### Key Technologies
-- **Stream Processing**: Apache Flink, Apache Spark Streaming
+- **Stream Processing**: Apache Flink, Apache Fluss, Apache Spark Streaming
 - **Message Queue**: Apache Kafka, Apache Pulsar
 - **OLAP**: Apache Doris, ClickHouse, Druid, Kylin, Presto/Trino
 - **Time Series**: InfluxDB, IoTDB
 - **NoSQL**: HBase, Redis, Elasticsearch
-- **Data Lake**: Apache Hudi, Apache Iceberg, Delta Lake
+- **Data Lake**: Apache Paimon, Apache Hudi, Apache Iceberg, Delta Lake
 - **Data Integration**: Flink CDC, DataX, SeaTunnel
 
 ### Documentation Structure
 ```
 docs/
 ├── 00-overview/              # Overview & architecture
-├── 01-stream-processing/     # Flink, Spark
+├── 01-stream-processing/     # Flink, Fluss, Spark
 ├── 02-message-queue/         # Kafka, Pulsar
 ├── 03-olap/                  # Doris, ClickHouse, Druid, Kylin, Presto-Trino
-├── 04-data-lake/             # Hudi, Iceberg, Delta Lake
+├── 04-data-lake/             # Paimon, Hudi, Iceberg, Delta Lake
 ├── 05-nosql/                 # Redis, ES, HBase, InfluxDB, IoTDB
 └── 06-integration/           # DataX, Flink-CDC, SeaTunnel
 ```
