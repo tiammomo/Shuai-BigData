@@ -30,14 +30,14 @@ Shuai-BigData is a comprehensive big data technology learning project covering 2
 
 ### Documentation Structure
 ```
-docs/
+learn_docs/
 ├── 00-overview/              # Overview & architecture
 ├── 01-stream-processing/     # Flink, Fluss, Spark
 ├── 02-message-queue/         # Kafka, Pulsar
 ├── 03-olap/                  # Doris, ClickHouse, Druid, Kylin, Presto-Trino
 ├── 04-data-lake/             # Paimon, Hudi, Iceberg, Delta Lake
 ├── 05-nosql/                 # Redis, ES, HBase, InfluxDB, IoTDB
-└── 06-integration/           # DataX, Flink-CDC, SeaTunnel
+└── 07-data-integration/      # DataX, Flink-CDC, SeaTunnel
 ```
 
 ### Build & Test

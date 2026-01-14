@@ -160,11 +160,11 @@
     "流处理平台 - Kafka Streams / KSQL"
   ],
   "related_docs": [
-    "docs/02-message-queue/kafka/01-architecture.md",
-    "docs/02-message-queue/kafka/02-producer.md",
-    "docs/02-message-queue/kafka/03-consumer.md",
-    "docs/02-message-queue/kafka/04-streams.md",
-    "docs/02-message-queue/kafka/05-operations.md",
-    "docs/02-message-queue/kafka/06-troubleshooting.md"
+    "learn_docs/02-message-queue/kafka/01-architecture.md",
+    "learn_docs/02-message-queue/kafka/02-producer.md",
+    "learn_docs/02-message-queue/kafka/03-consumer.md",
+    "learn_docs/02-message-queue/kafka/04-streams.md",
+    "learn_docs/02-message-queue/kafka/05-operations.md",
+    "learn_docs/02-message-queue/kafka/06-troubleshooting.md"
   ]
 }

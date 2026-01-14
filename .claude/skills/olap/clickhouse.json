@@ -162,9 +162,9 @@
     "监控时序 - 高吞吐写入和聚合"
   ],
   "related_docs": [
-    "docs/03-olap/clickhouse/01-architecture.md",
-    "docs/03-olap/clickhouse/02-merge-tree.md",
-    "docs/03-olap/clickhouse/03-data-operations.md",
-    "docs/03-olap/clickhouse/04-optimization.md"
+    "learn_docs/03-olap/clickhouse/01-architecture.md",
+    "learn_docs/03-olap/clickhouse/02-merge-tree.md",
+    "learn_docs/03-olap/clickhouse/03-data-operations.md",
+    "learn_docs/03-olap/clickhouse/04-optimization.md"
   ]
 }

@@ -188,11 +188,11 @@
     "CDC 数据同步 - 数据库变更实时捕获"
   ],
   "related_docs": [
-    "docs/01-stream-processing/flink/01-architecture.md",
-    "docs/01-stream-processing/flink/02-datastream.md",
-    "docs/01-stream-processing/flink/03-table-sql.md",
-    "docs/01-stream-processing/flink/04-state-checkpoint.md",
-    "docs/01-stream-processing/flink/05-cep.md",
-    "docs/01-stream-processing/flink/06-operations.md"
+    "learn_docs/01-stream-processing/flink/01-architecture.md",
+    "learn_docs/01-stream-processing/flink/02-datastream.md",
+    "learn_docs/01-stream-processing/flink/03-table-sql.md",
+    "learn_docs/01-stream-processing/flink/04-state-checkpoint.md",
+    "learn_docs/01-stream-processing/flink/05-cep.md",
+    "learn_docs/01-stream-processing/flink/06-operations.md"
   ]
 }

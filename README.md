@@ -10,7 +10,7 @@ Shuai-BigData 是一个专注于 **大数据技术栈实战** 的学习项目，
 
 ### 核心特性
 
-- **技术全面**: 涵盖 23+ 个主流大数据组件
+- **技术全面**: 涵盖 25+ 个主流大数据组件
 - **实战导向**: 每个组件都配有生产级别的示例代码
 - **深度文档**: 每篇教程都包含架构原理、最佳实践和 FAQ
 - **持续更新**: 定期添加新组件和最佳实践
@@ -22,6 +22,173 @@ Shuai-BigData 是一个专注于 **大数据技术栈实战** 的学习项目，
 - ETL 开发工程师
 - 运维工程师
 - 大数据专业学生
+
+---
+
+## 学习文档目录 (learn_docs)
+
+本文档体系按照技术领域组织，每个模块包含架构原理、使用指南、最佳实践等内容。
+
+```
+learn_docs/
+├── 00-overview/                    # 概览与架构
+│   ├── ai-llm-scenarios.md        # AI/LLM 与数据湖集成场景
+│   ├── architecture-diagrams.md   # 架构图集
+│   └── docker-integration.md      # Docker 环境集成
+│
+├── 01-stream-processing/          # 流处理引擎
+│   ├── flink/                     # Apache Flink
+│   │   ├── 01-architecture.md     # 架构与核心概念
+│   │   ├── 02-datastream.md       # DataStream API 详解
+│   │   ├── 03-table-sql.md        # Table API 与 Flink SQL
+│   │   ├── 04-state-checkpoint.md # 状态管理与 Checkpoint
+│   │   ├── 05-cep.md              # 复杂事件处理 CEP
+│   │   └── 06-operations.md       # 部署与运维
+│   │
+│   ├── fluss/                     # Apache Fluss
+│   │   ├── 01-architecture.md     # Fluss 架构解析
+│   │   └── README.md              # Fluss 使用指南
+│   │
+│   └── spark/                     # Apache Spark
+│       ├── 01-architecture.md     # Spark 核心架构
+│       ├── 02-spark-sql.md        # Spark SQL 详解
+│       ├── 03-spark-streaming.md  # Spark Streaming
+│       ├── 04-mllib.md            # MLlib 机器学习
+│       └── 05-optimization.md     # 性能优化
+│
+├── 02-message-queue/              # 消息队列
+│   ├── kafka/                     # Apache Kafka
+│   │   ├── 01-architecture.md     # Kafka 架构
+│   │   ├── 02-producer.md         # 生产者详解
+│   │   ├── 03-consumer.md         # 消费者与组
+│   │   ├── 04-streams.md          # Kafka Streams
+│   │   ├── 05-operations.md       # 运维与监控
+│   │   └── 06-troubleshooting.md  # 问题排查
+│   │
+│   └── pulsar/                    # Apache Pulsar
+│       ├── 01-architecture.md     # Pulsar 架构
+│       ├── 02-producer.md         # 生产者
+│       ├── 03-consumer.md         # 消费者
+│       ├── 04-functions.md        # Pulsar Functions
+│       └── README.md              # 使用指南
+│
+├── 03-olap/                       # OLAP 数据库
+│   ├── clickhouse/                # ClickHouse
+│   │   ├── 01-architecture.md     # 架构与 MergeTree
+│   │   ├── 02-merge-tree.md       # MergeTree 详解
+│   │   ├── 03-data-operations.md  # 数据操作
+│   │   └── 04-optimization.md     # 性能优化
+│   │
+│   ├── doris/                     # Apache Doris
+│   │   ├── 01-architecture.md     # 架构与节点
+│   │   ├── 02-data-model.md       # 数据模型
+│   │   ├── 03-data-operations.md  # 数据操作
+│   │   ├── 04-sql-reference.md    # SQL 参考
+│   │   └── 05-operations.md       # 运维操作
+│   │
+│   ├── druid/                     # Apache Druid
+│   │   ├── 01-architecture.md     # Druid 架构
+│   │   ├── 02-data-operations.md  # 数据操作
+│   │   └── README.md              # 使用指南
+│   │
+│   ├── kylin/                     # Apache Kylin
+│   │   ├── 01-architecture.md     # Kylin 架构
+│   │   ├── 02-usage.md            # 使用指南
+│   │   └── README.md              # 快速开始
+│   │
+│   └── presto-trino/              # Presto / Trino
+│       ├── 01-architecture.md     # 架构解析
+│       ├── 02-usage.md            # 使用指南
+│       └── README.md              # 快速开始
+│
+├── 04-data-lake/                  # 数据湖与表格式
+│   ├── paimon/                    # Apache Paimon
+│   │   ├── 01-architecture.md     # Paimon 架构
+│   │   ├── 02-usage.md            # 使用指南
+│   │   └── 03-spark-sql.md        # Spark SQL 操作
+│   │
+│   ├── hudi/                      # Apache Hudi
+│   │   ├── 01-architecture.md     # Hudi 架构
+│   │   ├── 02-data-operations.md  # 数据操作
+│   │   ├── 03-flink-integration.md # Flink 集成
+│   │   └── 04-spark-sql.md        # Spark SQL 操作
+│   │
+│   ├── iceberg/                   # Apache Iceberg
+│   │   ├── 01-architecture.md     # Iceberg 架构
+│   │   ├── 02-data-operations.md  # 数据操作
+│   │   ├── 03-flink-integration.md # Flink 集成
+│   │   └── 04-spark-sql.md        # Spark SQL 操作
+│   │
+│   └── delta-lake/                # Delta Lake
+│       ├── 01-architecture.md     # 架构解析
+│       ├── 02-usage.md            # 使用指南
+│       ├── 03-spark-sql.md        # Spark SQL 操作
+│       └── 04-flink-sql.md        # Flink SQL 操作
+│
+├── 05-nosql/                      # NoSQL 数据库
+│   ├── redis/                     # Redis
+│   │   ├── 01-architecture.md     # Redis 架构
+│   │   ├── 02-data-operations.md  # 数据操作
+│   │   └── 03-advanced.md         # 高级特性
+│   │
+│   ├── elasticsearch/             # Elasticsearch
+│   │   ├── 01-architecture.md     # 架构与索引
+│   │   ├── 02-query-dsl.md        # Query DSL
+│   │   ├── 03-aggregations.md     # 聚合分析
+│   │   └── 04-integration.md      # 集成指南
+│   │
+│   ├── hbase/                     # Apache HBase
+│   │   ├── 01-architecture.md     # HBase 架构
+│   │   ├── 02-data-operations.md  # 数据操作
+│   │   └── 03-phoenix.md          # Phoenix 集成
+│   │
+│   ├── influxdb/                  # InfluxDB
+│   │   ├── 01-architecture.md     # 架构与 TSM
+│   │   ├── 02-line-protocol.md    # Line Protocol
+│   │   └── 03-flux.md             # Flux 查询
+│   │
+│   └── iotdb/                     # Apache IoTDB
+│       ├── 01-architecture.md     # IoTDB 架构
+│       ├── 02-session-api.md      # Session API
+│       └── 03-write-optimization.md # 写入优化
+│
+├── 06-time-series/                # 时序数据库
+│   ├── influxdb/                  # InfluxDB (详见 05-nosql)
+│   └── iotdb/                     # IoTDB (详见 05-nosql)
+│
+├── 07-data-integration/           # 数据集成
+│   ├── flink-cdc/                 # Flink CDC
+│   │   ├── 01-architecture.md     # CDC 架构
+│   │   ├── 02-mysql-cdc.md        # MySQL CDC
+│   │   ├── 03-postgres-cdc.md     # PostgreSQL CDC
+│   │   └── 04-pipeline-sync.md    # 管道同步
+│   │
+│   ├── datax/                     # DataX
+│   │   ├── 01-quickstart.md       # 快速开始
+│   │   ├── 02-reader-writer.md    # Reader/Writer
+│   │   └── 03-job-config.md       # 作业配置
+│   │
+│   └── seatunnel/                 # SeaTunnel
+│       ├── 01-quickstart.md       # 快速开始
+│       ├── 02-config-guide.md     # 配置指南
+│       └── 03-connector-guide.md  # 连接器指南
+│
+└── README.md                       # 学习文档索引
+```
+
+### 快速导航
+
+| 分类 | 主题 | 文档路径 |
+|------|------|----------|
+| 流处理 | Flink 入门 | [learn_docs/01-stream-processing/flink/](learn_docs/01-stream-processing/flink/) |
+| 流处理 | Spark Streaming | [learn_docs/01-stream-processing/spark/](learn_docs/01-stream-processing/spark/) |
+| 消息队列 | Kafka 核心 | [learn_docs/02-message-queue/kafka/](learn_docs/02-message-queue/kafka/) |
+| OLAP | Doris 实时分析 | [learn_docs/03-olap/doris/](learn_docs/03-olap/doris/) |
+| OLAP | ClickHouse 实战 | [learn_docs/03-olap/clickhouse/](learn_docs/03-olap/clickhouse/) |
+| 数据湖 | Paimon 实时入湖 | [learn_docs/04-data-lake/paimon/](learn_docs/04-data-lake/paimon/) |
+| 数据湖 | Hudi 数据湖 | [learn_docs/04-data-lake/hudi/](learn_docs/04-data-lake/hudi/) |
+| 数据集成 | Flink CDC | [learn_docs/07-data-integration/flink-cdc/](learn_docs/07-data-integration/flink-cdc/) |
+| AI 场景 | LLM + 数据湖 | [learn_docs/00-overview/ai-llm-scenarios.md](learn_docs/00-overview/ai-llm-scenarios.md) |
 
 ---
 
@@ -45,21 +212,7 @@ Shuai-BigData 是一个专注于 **大数据技术栈实战** 的学习项目，
 | ClickHouse | 23.8 | 列式存储 | MergeTree、高性能聚合 |
 | Apache Druid | 26.0 | 实时分析 | 列式存储、实时摄取 |
 | Apache Kylin | 4.0 | OLAP 立方体 | 预计算、多维分析 |
-
-### 时序数据库
-
-| 组件 | 版本 | 用途 | 关键特性 |
-|------|------|------|----------|
-| InfluxDB | 2.7 | 时序数据 | TSM 存储、Line Protocol |
-| IoTDB | 1.3 | IoT 时序 | 高吞吐、边缘计算 |
-
-### NoSQL 数据库
-
-| 组件 | 版本 | 用途 | 关键特性 |
-|------|------|------|----------|
-| HBase | 2.5.6 | 列式 NoSQL | RowKey、LSM 树 |
-| Redis | 7.2 | 缓存/NoSQL | 数据结构、分布式锁 |
-| Elasticsearch | 8.11 | 搜索/分析 | 倒排索引、聚合 |
+| Presto/Trino | 0.28 | 分布式 SQL | 跨数据源 JOIN |
 
 ### 数据湖与表格式
 
@@ -70,6 +223,16 @@ Shuai-BigData 是一个专注于 **大数据技术栈实战** 的学习项目，
 | Apache Iceberg | 1.5.2 | 表格式 | Schema 演进、Branch |
 | Delta Lake | 3.0 | 表格式 | ACID 事务、Merge |
 
+### NoSQL 与时序
+
+| 组件 | 版本 | 用途 | 关键特性 |
+|------|------|------|----------|
+| Redis | 7.2 | 缓存/NoSQL | 数据结构、分布式锁 |
+| Elasticsearch | 8.11 | 搜索/分析 | 倒排索引、聚合 |
+| HBase | 2.5.6 | 列式 NoSQL | RowKey、LSM 树 |
+| InfluxDB | 2.7 | 时序数据 | TSM 存储、Line Protocol |
+| IoTDB | 1.3 | IoT 时序 | 高吞吐、边缘计算 |
+
 ### 数据集成
 
 | 组件 | 版本 | 用途 | 关键特性 |
@@ -77,11 +240,10 @@ Shuai-BigData 是一个专注于 **大数据技术栈实战** 的学习项目，
 | Flink CDC | 3.0 | 实时同步 | CDC 捕获、SQL 集成 |
 | DataX | 3.0 | 离线同步 | Reader/Writer 插件 |
 | SeaTunnel | 2.3 | 统一集成 | YAML 配置、多引擎 |
-| Presto/Trino | 0.28 | 分布式 SQL | 跨数据源 JOIN |
 
 ---
 
-## 目录结构
+## 项目结构
 
 ```
 Shuai-BigData/
@@ -129,14 +291,6 @@ Shuai-BigData/
 │   │   ├── HBaseExample.java                  # 基础操作
 │   │   └── SparkHBaseExample.java             # Spark 集成
 │   │
-│   ├── zookeeper/                # ZooKeeper 示例
-│   │   ├── ZookeeperExample.java              # 基础操作
-│   │   └── ZookeeperRecipesExample.java       # 分布式锁
-│   │
-│   ├── flume/                    # Flume 示例
-│   │   ├── FlumeExample.java                  # 基础配置
-│   │   └── FlumeConfigurationExample.java     # 高级配置
-│   │
 │   ├── pulsar/                   # Pulsar 示例
 │   │   └── PulsarExample.java                 # 生产消费
 │   │
@@ -180,27 +334,15 @@ Shuai-BigData/
 │       ├── KafkaUtils.java                   # Kafka 工具
 │       └── HBaseUtils.java                   # HBase 工具
 │
-├── docs/                         # 教程文档 (21个)
-│   ├── FLINK_TUTORIAL.md         # Flink 实时计算
-│   ├── KAFKA_TUTORIAL.md         # Kafka 消息队列
-│   ├── DORIS_TUTORIAL.md         # Doris 实时分析
-│   ├── SPARK_TUTORIAL.md         # Spark 分布式计算
-│   ├── REDIS_TUTORIAL.md         # Redis 缓存数据库
-│   ├── ELASTICSEARCH_TUTORIAL.md # Elasticsearch 搜索
-│   ├── HBASE_TUTORIAL.md         # HBase 分布式数据库
-│   ├── CLICKHOUSE_TUTORIAL.md    # ClickHouse OLAP
-│   ├── FLINK_CDC_TUTORIAL.md     # Flink CDC 实时同步
-│   ├── HUDI_TUTORIAL.md          # Hudi 数据湖
-│   ├── DATAX_TUTORIAL.md         # DataX 数据同步
-│   ├── SEATUNNEL_TUTORIAL.md     # SeaTunnel 数据集成
-│   ├── PRESTO_TRINO_TUTORIAL.md  # Presto/Trino SQL
-│   ├── INFLUXDB_TUTORIAL.md      # InfluxDB 时序数据库
-│   ├── DRUID_TUTORIAL.md         # Druid 实时分析
-│   ├── KYLIN_TUTORIAL.md         # Kylin OLAP 引擎
-│   ├── PULSAR_TUTORIAL.md        # Pulsar 消息队列
-│   ├── IOTDB_TUTORIAL.md         # IoTDB 时序数据库
-│   ├── ICEBERG_TUTORIAL.md       # Iceberg 数据湖表格式
-│   └── DELTA_LAKE_TUTORIAL.md    # Delta Lake 数据湖
+├── learn_docs/                   # 学习文档 (83+ 篇)
+│   ├── 00-overview/              # 概览与架构图
+│   ├── 01-stream-processing/     # 流处理引擎
+│   ├── 02-message-queue/         # 消息队列
+│   ├── 03-olap/                  # OLAP 数据库
+│   ├── 04-data-lake/             # 数据湖与表格式
+│   ├── 05-nosql/                 # NoSQL 数据库
+│   ├── 07-data-integration/      # 数据集成
+│   └── README.md                 # 文档索引
 │
 ├── scripts/                      # 部署脚本
 │   ├── start-flink.sh            # Flink 集群启动
@@ -211,6 +353,17 @@ Shuai-BigData/
 │   ├── flink-conf.yaml          # Flink 配置
 │   ├── log4j2.properties         # 日志配置
 │   └── hadoop-conf/             # Hadoop 配置
+│
+├── .claude/                      # Claude Code 配置
+│   ├── CLAUDE.md                 # 项目说明
+│   └── skills/                   # 技能卡 (AI 辅助)
+│       ├── batch-processing/     # 批处理技能
+│       ├── data-integration/     # 数据集成技能
+│       ├── data-lake/            # 数据湖技能
+│       ├── message-queue/        # 消息队列技能
+│       ├── olap/                 # OLAP 技能
+│       ├── stream-processing/    # 流处理技能
+│       └── common-issues.json    # 常见问题
 │
 ├── pom.xml                       # Maven 配置
 └── README.md                     # 项目说明
@@ -248,10 +401,6 @@ brew install openjdk@11
 wget https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz
 tar -xzf apache-maven-3.9.6-bin.tar.gz
 export PATH=$PATH:/path/to/apache-maven-3.9.6/bin
-
-# Windows
-# 下载: https://maven.apache.org/download.cgi
-# 配置环境变量 MAVEN_HOME
 
 # 3. 验证安装
 java -version
@@ -299,51 +448,51 @@ mvn exec:java -Dexec.mainClass="com.bigdata.example.spark.SparkRDDExample"
 
 | 教程 | 章节数 | 说明 | 难度 |
 |------|--------|------|------|
-| [Flink 实时计算](docs/FLINK_TUTORIAL.md) | 10章 | DataStream API、状态管理、窗口、水印、容错 | ⭐⭐⭐ |
-| [Spark 分布式计算](docs/SPARK_TUTORIAL.md) | 8章 | RDD、DataFrame、Spark SQL、Structured Streaming | ⭐⭐⭐ |
-| [Kafka 消息队列](docs/KAFKA_TUTORIAL.md) | 6章 | 生产消费、Streams、Admin API、事务 | ⭐⭐ |
-| [Pulsar 消息队列](docs/PULSAR_TUTORIAL.md) | 5章 | Producer、Consumer、Subscription、Functions | ⭐⭐ |
+| [Flink 实时计算](learn_docs/01-stream-processing/flink/) | 6章 | DataStream API、状态管理、窗口、水印、容错 | ⭐⭐⭐ |
+| [Spark 分布式计算](learn_docs/01-stream-processing/spark/) | 5章 | RDD、DataFrame、Spark SQL、Structured Streaming | ⭐⭐⭐ |
+| [Kafka 消息队列](learn_docs/02-message-queue/kafka/) | 6章 | 生产消费、Streams、Admin API、事务 | ⭐⭐ |
+| [Pulsar 消息队列](learn_docs/02-message-queue/pulsar/) | 4章 | Producer、Consumer、Subscription、Functions | ⭐⭐ |
 
 ### OLAP 数据库
 
 | 教程 | 章节数 | 说明 | 难度 |
 |------|--------|------|------|
-| [Doris 实时分析](docs/DORIS_TUTORIAL.md) | 7章 | 数据模型、Bitmap、JDBC、Flink/Spark 集成 | ⭐⭐ |
-| [ClickHouse OLAP](docs/CLICKHOUSE_TUTORIAL.md) | 6章 | MergeTree、物化视图、分布式查询 | ⭐⭐ |
-| [Druid 实时分析](docs/DRUID_TUTORIAL.md) | 5章 | 实时摄取、Segment、SQL 查询 | ⭐⭐⭐ |
-| [Kylin OLAP 引擎](docs/KYLIN_TUTORIAL.md) | 5章 | Cube 构建、星型模型、聚合组 | ⭐⭐⭐ |
-
-### 时序数据库
-
-| 教程 | 章节数 | 说明 | 难度 |
-|------|--------|------|------|
-| [InfluxDB 时序数据库](docs/INFLUXDB_TUTORIAL.md) | 5章 | TSM 存储、Line Protocol、保留策略 | ⭐⭐ |
-| [IoTDB 时序数据库](docs/IOTDB_TUTORIAL.md) | 4章 | Session API、Tablet、Schema 管理 | ⭐⭐ |
-
-### NoSQL 数据库
-
-| 教程 | 章节数 | 说明 | 难度 |
-|------|--------|------|------|
-| [HBase 数据库](docs/HBASE_TUTORIAL.md) | 6章 | 表操作、过滤器、RowKey 设计、协处理器 | ⭐⭐ |
-| [Redis 缓存](docs/REDIS_TUTORIAL.md) | 5章 | Jedis、数据结构、分布式锁、限流 | ⭐ |
-| [Elasticsearch 搜索](docs/ELASTICSEARCH_TUTORIAL.md) | 6章 | 索引、Query DSL、聚合分析、Spring 集成 | ⭐⭐ |
+| [Doris 实时分析](learn_docs/03-olap/doris/) | 5章 | 数据模型、Bitmap、JDBC、Flink/Spark 集成 | ⭐⭐ |
+| [ClickHouse OLAP](learn_docs/03-olap/clickhouse/) | 4章 | MergeTree、物化视图、分布式查询 | ⭐⭐ |
+| [Druid 实时分析](learn_docs/03-olap/druid/) | 2章 | 实时摄取、Segment、SQL 查询 | ⭐⭐⭐ |
+| [Kylin OLAP 引擎](learn_docs/03-olap/kylin/) | 2章 | Cube 构建、星型模型、聚合组 | ⭐⭐⭐ |
 
 ### 数据湖表格式
 
 | 教程 | 章节数 | 说明 | 难度 |
 |------|--------|------|------|
-| [Hudi 数据湖](docs/HUDI_TUTORIAL.md) | 6章 | CoW/MoR表、时间旅行、Flink/Spark 集成 | ⭐⭐⭐ |
-| [Iceberg 数据湖](docs/ICEBERG_TUTORIAL.md) | 6章 | Schema 演进、时间旅行、Branch/Merge | ⭐⭐⭐ |
-| [Delta Lake 数据湖](docs/DELTA_LAKE_TUTORIAL.md) | 5章 | ACID 事务、Merge、Streaming | ⭐⭐ |
+| [Paimon 实时入湖](learn_docs/04-data-lake/paimon/) | 3章 | 流批一体、CDC 同步、Spark/Flink 集成 | ⭐⭐⭐ |
+| [Hudi 数据湖](learn_docs/04-data-lake/hudi/) | 4章 | CoW/MoR表、时间旅行、Flink/Spark 集成 | ⭐⭐⭐ |
+| [Iceberg 数据湖](learn_docs/04-data-lake/iceberg/) | 4章 | Schema 演进、时间旅行、Branch/Merge | ⭐⭐⭐ |
+| [Delta Lake 数据湖](learn_docs/04-data-lake/delta-lake/) | 4章 | ACID 事务、Merge、Streaming | ⭐⭐ |
 
 ### 数据同步与集成
 
 | 教程 | 章节数 | 说明 | 难度 |
 |------|--------|------|------|
-| [Flink CDC](docs/FLINK_CDC_TUTORIAL.md) | 5章 | MySQL/PostgreSQL/MongoDB CDC 实时同步 | ⭐⭐⭐ |
-| [DataX 数据同步](docs/DATAX_TUTORIAL.md) | 6章 | Reader/Writer 插件、全量/增量同步 | ⭐⭐ |
-| [SeaTunnel 集成](docs/SEATUNNEL_TUTORIAL.md) | 4章 | YAML 配置、Source/Sink/Transform | ⭐⭐ |
-| [Presto/Trino SQL](docs/PRESTO_TRINO_TUTORIAL.md) | 5章 | SQL 查询、Window 函数、Connectors | ⭐⭐ |
+| [Flink CDC](learn_docs/07-data-integration/flink-cdc/) | 4章 | MySQL/PostgreSQL CDC 实时同步 | ⭐⭐⭐ |
+| [DataX 数据同步](learn_docs/07-data-integration/datax/) | 3章 | Reader/Writer 插件、全量/增量同步 | ⭐⭐ |
+| [SeaTunnel 集成](learn_docs/07-data-integration/seatunnel/) | 3章 | YAML 配置、Source/Sink/Transform | ⭐⭐ |
+
+### NoSQL 数据库
+
+| 教程 | 章节数 | 说明 | 难度 |
+|------|--------|------|------|
+| [Redis 缓存](learn_docs/05-nosql/redis/) | 3章 | Jedis、数据结构、分布式锁、限流 | ⭐ |
+| [Elasticsearch 搜索](learn_docs/05-nosql/elasticsearch/) | 4章 | 索引、Query DSL、聚合分析 | ⭐⭐ |
+| [HBase 数据库](learn_docs/05-nosql/hbase/) | 3章 | 表操作、过滤器、RowKey 设计 | ⭐⭐ |
+
+### 时序数据库
+
+| 教程 | 章节数 | 说明 | 难度 |
+|------|--------|------|------|
+| [InfluxDB 时序](learn_docs/05-nosql/influxdb/) | 3章 | TSM 存储、Line Protocol、Flux 查询 | ⭐⭐ |
+| [IoTDB 时序](learn_docs/05-nosql/iotdb/) | 3章 | Session API、Tablet、Schema 管理 | ⭐⭐ |
 
 ---
 
@@ -371,8 +520,8 @@ mvn exec:java -Dexec.mainClass="com.bigdata.example.spark.SparkRDDExample"
 │  ┌─────────────────────────────────────────────────────────────────┐   │
 │  │                        数据仓库/湖                               │   │
 │  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐            │   │
-│  │  │  Hive   │  │  Hudi   │  │Iceberg  │  │Delta    │            │   │
-│  │  │         │  │         │  │         │  │Lake     │            │   │
+│  │  │  Hive   │  │  Paimon │  │Iceberg  │  │Delta    │            │   │
+│  │  │         │  │  Hudi   │  │         │  │Lake     │            │   │
 │  │  └─────────┘  └─────────┘  └─────────┘  └─────────┘            │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
@@ -382,11 +531,10 @@ mvn exec:java -Dexec.mainClass="com.bigdata.example.spark.SparkRDDExample"
 │  │  │  Doris  │  │ClickHouse│ │  Druid  │  │ Presto  │            │   │
 │  │  └─────────┘  └─────────┘  └─────────┘  └─────────┘            │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
-│─────────────────────────────────────────┘
+│─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 技术                                                                         │
-└────────────────────────────────选型指南
+### 技术选型指南
 
 ```
 场景                           推荐技术栈
@@ -394,104 +542,27 @@ mvn exec:java -Dexec.mainClass="com.bigdata.example.spark.SparkRDDExample"
 实时流处理                      Flink + Kafka
 离线批处理                      Spark + Hive
 实时数仓                        Doris / ClickHouse
-数据湖建设                      Hudi / Iceberg
+数据湖建设                      Paimon / Hudi / Iceberg
 CDC 实时同步                    Flink CDC
 日志收集                        Filebeat + Kafka + ES
 时序数据                        InfluxDB / IoTDB
 缓存加速                        Redis Cluster
 搜索服务                        Elasticsearch
 跨数据源查询                    Presto / Trino
+AI/LLM 数据管道                 Paimon + Flink CDC + 向量引擎
 ```
 
 ---
 
-## 最佳实践
+## AI/LLM 场景指南
 
-### 开发规范
+数据湖仓技术与 AI/LLM 的结合是当前热门方向，详见:
 
-```java
-/**
- * 命名规范
- * - 类名: PascalCase (如: FlinkDataStreamExample)
- * - 方法名: camelCase (如: processOrder)
- * - 常量: UPPER_SNAKE_CASE (如: MAX_RETRY_COUNT)
- * - 包名: lowercase (如: com.bigdata.example.flink)
- */
-
-// 异常处理
-try {
-    // 业务逻辑
-} catch (SpecificException e) {
-    // 处理特定异常
-    log.error("Specific error: {}", e.getMessage());
-} catch (Exception e) {
-    // 处理通用异常
-    log.error("Unexpected error: {}", e.getMessage(), e);
-    throw new BusinessException(e);
-}
-
-// 资源关闭 (Java 7+)
-try (Connection conn = dataSource.getConnection();
-     PreparedStatement stmt = conn.prepareStatement(sql)) {
-    // 使用资源
-}
-```
-
-### 配置管理
-
-```yaml
-# application.yml
-spring:
-  application:
-    name: shuai-bigdata
-
-  # 数据源配置
-  datasource:
-    url: jdbc:mysql://localhost:3306/db
-    username: root
-    password: ${DB_PASSWORD:password}
-
-  # Flink 配置
-  flink:
-    checkpoint:
-      interval: 60000
-      mode: EXACTLY_ONCE
-    parallelism: 4
-
-  # Kafka 配置
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: flink-group
-      auto-offset-reset: earliest
-```
-
-### 监控告警
-
-```yaml
-# Prometheus 监控配置
-scrape_configs:
-  - job_name: 'flink'
-    metrics_path: '/metrics'
-    static_configs:
-      - targets: ['localhost:9250']
-
-  - job_name: 'kafka'
-    static_configs:
-      - targets: ['localhost:9100']
-
-# AlertManager 告警规则
-groups:
-  - name: bigdata-alerts
-    rules:
-      - alert: KafkaLagHigh
-        expr: kafka_consumer_lag > 1000
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Kafka consumer lag is high"
-```
+- [AI/LLM 数据湖场景](learn_docs/00-overview/ai-llm-scenarios.md)
+  - RAG 知识库架构
+  - 实时特征工程
+  - 模型训练数据管理
+  - 向量检索集成
 
 ---
 
@@ -545,17 +616,9 @@ cat /etc/hosts
 
 欢迎贡献代码和文档！
 
-### 提交 PR
-
-1. Fork 本项目
-2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
-3. 提交修改 (`git commit -m 'feat: add amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建 Pull Request
-
 ### 添加新教程
 
-1. 在 `docs/` 目录下创建 `XXX_TUTORIAL.md`
+1. 在 `learn_docs/` 对应分类下创建章节文档
 2. 遵循现有教程的格式和结构
 3. 添加代码示例和详细注释
 4. 更新 `README.md` 的教程索引
@@ -578,41 +641,21 @@ cat /etc/hosts
 - [Apache Kafka](https://kafka.apache.org/)
 - [Apache Doris](https://doris.apache.org/)
 - [ClickHouse](https://clickhouse.com/)
-- [Elasticsearch](https://www.elastic.co/)
-- [Redis](https://redis.io/)
-- [HBase](https://hbase.apache.org/)
+- [Apache Paimon](https://paimon.apache.org/)
+- [Apache Iceberg](https://iceberg.apache.org/)
+- [Apache Hudi](https://hudi.apache.org/)
 
-### 技术博客
+### 中文文档
 
 - [Flink 中文文档](https://flink.apache.org/zh/)
 - [Spark 中文文档](https://spark.apache.org/docs/zh/)
 - [Kafka 中文文档](https://kafka.apache.org/documentation/)
-
-### 社区
-
-- [掘金 - 大数据](https://juejin.cn/tag/%E5%A4%A7%E6%95%B0%E6%8D%AE)
-- [知乎 - 大数据](https://www.zhihu.com/topic/%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B)
-- [GitHub Issues](https://github.com/your-repo/Shuai-BigData/issues)
 
 ---
 
 ## 许可证
 
 本项目采用 Apache License 2.0 许可证。
-
-```
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
 
 ---
 
@@ -634,9 +677,11 @@ limitations under the License.
 - 删除原有的 21 个 TUTORIAL.md 文件
 - 文档总数达到 83+ 个文件
 
-### v1.2.0 (计划中)
+### v1.2.0 (2026-01)
 
-- [ ] 添加 Kubernetes 部署示例
-- [ ] 添加监控告警示例
-- [ ] 添加性能测试基准
-- [ ] 添加更多生产实践案例
+- 重命名 docs 为 learn_docs，优化文档组织结构
+- 新增 AI/LLM 数据湖场景文档
+- 新增数据湖 skills: Paimon、Iceberg、Hudi、Delta Lake
+- 新增 Flink CDC skills
+- 更新完善 Doris、ClickHouse、Flink、Kafka skills
+- 文档与 skills 形成完整知识体系

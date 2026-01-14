@@ -102,9 +102,9 @@
     }
   },
   "related_docs": [
-    "docs/04-data-lake/delta-lake/01-architecture.md",
-    "docs/04-data-lake/delta-lake/02-usage.md",
-    "docs/04-data-lake/delta-lake/03-spark-sql.md",
-    "docs/04-data-lake/delta-lake/04-flink-sql.md"
+    "learn_docs/04-data-lake/delta-lake/01-architecture.md",
+    "learn_docs/04-data-lake/delta-lake/02-usage.md",
+    "learn_docs/04-data-lake/delta-lake/03-spark-sql.md",
+    "learn_docs/04-data-lake/delta-lake/04-flink-sql.md"
   ]
 }

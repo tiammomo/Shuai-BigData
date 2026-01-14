@@ -128,10 +128,10 @@
     "日志分析系统 - 快速全文检索"
   ],
   "related_docs": [
-    "docs/03-olap/doris/01-architecture.md",
-    "docs/03-olap/doris/02-data-model.md",
-    "docs/03-olap/doris/03-data-operations.md",
-    "docs/03-olap/doris/04-sql-reference.md",
-    "docs/03-olap/doris/05-operations.md"
+    "learn_docs/03-olap/doris/01-architecture.md",
+    "learn_docs/03-olap/doris/02-data-model.md",
+    "learn_docs/03-olap/doris/03-data-operations.md",
+    "learn_docs/03-olap/doris/04-sql-reference.md",
+    "learn_docs/03-olap/doris/05-operations.md"
   ]
 }

@@ -66,9 +66,9 @@
     "图计算"
   ],
   "related_docs": [
-    "docs/01-stream-processing/spark/01-architecture.md",
-    "docs/01-stream-processing/spark/02-spark-sql.md",
-    "docs/01-stream-processing/spark/04-mllib.md",
-    "docs/01-stream-processing/spark/05-optimization.md"
+    "learn_docs/01-stream-processing/spark/01-architecture.md",
+    "learn_docs/01-stream-processing/spark/02-spark-sql.md",
+    "learn_docs/01-stream-processing/spark/04-mllib.md",
+    "learn_docs/01-stream-processing/spark/05-optimization.md"
   ]
 }

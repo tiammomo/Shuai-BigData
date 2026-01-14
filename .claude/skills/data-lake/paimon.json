@@ -151,9 +151,9 @@
     }
   },
   "related_docs": [
-    "docs/04-data-lake/paimon/01-architecture.md",
-    "docs/04-data-lake/paimon/02-usage.md",
-    "docs/04-data-lake/paimon/03-spark-sql.md",
-    "docs/00-overview/ai-llm-scenarios.md"
+    "learn_docs/04-data-lake/paimon/01-architecture.md",
+    "learn_docs/04-data-lake/paimon/02-usage.md",
+    "learn_docs/04-data-lake/paimon/03-spark-sql.md",
+    "learn_docs/00-overview/ai-llm-scenarios.md"
   ]
 }

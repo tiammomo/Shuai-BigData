@@ -128,9 +128,9 @@
     "微服务同步 - 多服务数据一致性"
   ],
   "related_docs": [
-    "docs/03-data-integration/flink-cdc/01-architecture.md",
-    "docs/03-data-integration/flink-cdc/02-mysql-cdc.md",
-    "docs/03-data-integration/flink-cdc/03-postgres-cdc.md",
-    "docs/03-data-integration/flink-cdc/04-pipeline-sync.md"
+    "learn_docs/03-data-integration/flink-cdc/01-architecture.md",
+    "learn_docs/03-data-integration/flink-cdc/02-mysql-cdc.md",
+    "learn_docs/03-data-integration/flink-cdc/03-postgres-cdc.md",
+    "learn_docs/03-data-integration/flink-cdc/04-pipeline-sync.md"
   ]
 }

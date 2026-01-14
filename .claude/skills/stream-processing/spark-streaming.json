@@ -52,7 +52,7 @@
     "批流一体处理"
   ],
   "related_docs": [
-    "docs/01-stream-processing/spark/03-spark-streaming.md",
-    "docs/01-stream-processing/spark/01-architecture.md"
+    "learn_docs/01-stream-processing/spark/03-spark-streaming.md",
+    "learn_docs/01-stream-processing/spark/01-architecture.md"
   ]
 }

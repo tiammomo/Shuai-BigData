@@ -132,9 +132,9 @@
     "流批一体 - 统一存储支撑多种场景"
   ],
   "related_docs": [
-    "docs/04-data-lake/hudi/01-architecture.md",
-    "docs/04-data-lake/hudi/02-data-operations.md",
-    "docs/04-data-lake/hudi/03-flink-integration.md",
-    "docs/04-data-lake/hudi/04-spark-sql.md"
+    "learn_docs/04-data-lake/hudi/01-architecture.md",
+    "learn_docs/04-data-lake/hudi/02-data-operations.md",
+    "learn_docs/04-data-lake/hudi/03-flink-integration.md",
+    "learn_docs/04-data-lake/hudi/04-spark-sql.md"
   ]
 }
