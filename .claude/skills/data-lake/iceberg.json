@@ -1,0 +1,128 @@
+{
+  "name": "Apache Iceberg",
+  "description": "开放表格式，支持 Schema 演进、时间旅行、增量查询和跨引擎统一访问",
+  "category": "数据湖",
+  "key_concepts": [
+    "Table Format - 开放表格式规范",
+    "Schema - Schema 定义和演进",
+    "Partition Spec - 分区规范和变换",
+    "Snapshot - 快照，表的只读版本",
+    "Manifest - 清单文件，存储文件列表",
+    "Metadata - 元数据 JSON 文件",
+    "Data Files - Parquet/ORC/Avro 数据文件",
+    "Branch - 分支，独立开发路径",
+    "Tag - 标签，快照引用",
+    "Time Travel - 历史版本查询",
+    "Merge On Read - 读时合并优化",
+    "Rewrite - 文件重写优化"
+  ],
+  "configurations": {
+    "write": {
+      "write.format.default": "parquet",
+      "write.target-file-size-bytes": "134217728",
+      "write.parquet.compression-codec": "zstd",
+      "write.upsert.enabled": true
+    },
+    "read": {
+      "read.target-max-result-size-mb": "128",
+      "split.planning.strategy": "greedy",
+      "split.planning.lookback": 10
+    },
+    "metadata": {
+      "write.metadata.delete-after-commit.enabled": true,
+      "write.metadata.previous-versions-max": 100
+    }
+  },
+  "common_operations": [
+    "CREATE TABLE table (...) USING iceberg PARTITIONED BY (days(ts))",
+    "SELECT * FROM table VERSION AS OF 123456789",
+    "SELECT * FROM table TIMESTAMP AS OF '2024-01-15 12:00:00'",
+    "ALTER TABLE table CREATE BRANCH branch_2024 AS OF VERSION 123456789",
+    "ALTER TABLE table CREATE TAG v1.0 AS OF VERSION 123456789",
+    "CALL catalog.system.rewrite_data_files(table => 'db.table')",
+    "SELECT * FROM table$snapshots"
+  ],
+  "schema_evolution": {
+    "add_column": "ALTER TABLE table ADD COLUMNS (phone STRING AFTER email)",
+    "drop_column": "ALTER TABLE table DROP COLUMN phone",
+    "rename_column": "ALTER TABLE table RENAME COLUMN email TO contact",
+    "alter_column": "ALTER TABLE table ALTER COLUMN age TYPE BIGINT",
+    "update_property": "ALTER TABLE table SET TBLPROPERTIES ('key'='value')"
+  },
+  "partition_specs": {
+    "identity": "PARTITIONED BY (date)",
+    "transforms": {
+      "years": "PARTITIONED BY years(ts)",
+      "months": "PARTITIONED BY months(ts)",
+      "days": "PARTITIONED BY days(ts)",
+      "hours": "PARTITIONED BY hours(ts)",
+      "bucket": "PARTITIONED BY bucket(16, user_id)",
+      "truncate": "PARTITIONED BY truncate(10, name)"
+    },
+    "evolve": "ALTER TABLE table SET PARTITION SPEC (days(ts), bucket(16, user_id))"
+  },
+  "integrations": {
+    "spark": {
+      "maven": "org.apache.iceberg:iceberg-spark-runtime-3.4_2.12:1.5.2",
+      "config": "spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtension"
+    },
+    "flink": {
+      "maven": "org.apache.iceberg:iceberg-flink-runtime-3.4_2.12:1.5.2",
+      "sql": "CREATE TABLE iceberg_table (...) WITH ('connector'='iceberg', ...)"
+    },
+    "hive": {
+      "maven": "org.apache.iceberg:iceberg-hive-runtime:1.5.2"
+    },
+    "trino": {
+      "connector": "iceberg",
+      "properties": {"iceberg.catalog.type": "hive"}
+    }
+  },
+  "time_travel": {
+    "snapshots": "SELECT * FROM table$snapshots",
+    "by_version": "SELECT * FROM table VERSION AS OF 123456789",
+    "by_timestamp": "SELECT * FROM table TIMESTAMP AS OF '2024-01-15 12:00:00'",
+    "incremental": "SELECT * FROM table SINCE VERSION AS OF 123456789"
+  },
+  "branch_operations": {
+    "create": "ALTER TABLE table CREATE BRANCH dev AS OF VERSION 123456789",
+    "use": "SELECT * FROM table VERSION AS OF 'dev'",
+    "merge": "ALTER TABLE table REPLACE BRANCH dev AS OF main",
+    "drop": "ALTER TABLE table DROP BRANCH dev",
+    "expire": "ALTER TABLE table ALTER BRANCH dev RETAIN 7 DAYS"
+  },
+  "optimization": {
+    "compaction": {
+      "rewrite_data_files": "CALL catalog.system.rewrite_data_files(table => 'db.table', strategy => 'sort', sortOrder => 'name ASC')",
+      "rewrite_manifests": "CALL catalog.system.rewrite_manifests(table => 'db.table')",
+      "rewrite_position_delete": "CALL catalog.system.rewrite_position_delete_files(table => 'db.table')"
+    },
+    "maintenance": {
+      "expire_snapshots": "CALL catalog.system.expire_snapshots(table => 'db.table', older_than => '2024-01-01', retain_last => 10)",
+      "remove_orphans": "CALL catalog.system.remove_orphan_files(table => 'db.table', older_than => '7d')",
+      "rewrite_metadata": "CALL catalog.system.rewrite_metadata(table => 'db.table')"
+    }
+  },
+  "best_practices": [
+    "使用合适的分区策略，按时间+高基数字段",
+    "开启 Merge On Read 提升写入性能",
+    "定期执行 Compaction 减少文件数量",
+    "使用 Branches 进行实验性开发",
+    "配置 TTL 清理过期快照",
+    "开启文件清理避免孤儿文件",
+    "使用 Z-Order 优化多维查询"
+  ],
+  "use_cases": [
+    "开放数据湖 - 多引擎统一访问",
+    "时间旅行 - 历史版本查询",
+    "Schema 演进 - 动态字段变更",
+    "增量消费 - 变更数据捕获",
+    "数据治理 - 元数据驱动的数据管理"
+  ],
+  "related_docs": [
+    "docs/04-data-lake/iceberg/01-architecture.md",
+    "docs/04-data-lake/iceberg/02-data-operations.md",
+    "docs/04-data-lake/iceberg/03-flink-integration.md",
+    "docs/04-data-lake/iceberg/04-spark-sql.md"
+  ]
+}

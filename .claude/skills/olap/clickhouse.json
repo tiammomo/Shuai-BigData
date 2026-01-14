@@ -1,62 +1,165 @@
 {
   "name": "ClickHouse",
-  "description": "列式存储分析数据库，支持高并发实时 OLAP 查询，擅长聚合分析",
+  "description": "列式存储分析数据库，支持高并发实时 OLAP 查询，擅长聚合分析，支持副本和分布式查询",
   "category": "OLAP",
   "key_concepts": [
-    "MergeTree - 主表引擎家族基础",
-    "ReplicatedMergeTree - 支持副本的 MergeTree",
-    "Distributed - 分布式查询引擎",
-    "Partition - 分区裁剪优化",
-    "Primary Key - 主键和索引粒度",
-    "Data Skip Indexes - 跳数索引（Bloom Filter/MinMax）",
-    "Materialized View - 物化视图预聚合",
-    "Dictionary - 字典表关联查询",
-    "TTL - 数据生命周期管理",
-    "Mutation - 数据修改操作",
-    "Collation - 排序规则",
-    "Sampling - 表采样查询"
+    "MergeTree - 主表引擎家族基础，按 Order By 排序，支持分区",
+    "ReplicatedMergeTree - 支持副本的 MergeTree，ZooKeeper 协调",
+    "ReplacingMergeTree - 按主键去重，保留最新数据",
+    "SummingMergeTree - 按主键聚合，SUM 自动合并",
+    "AggregatingMergeTree - 预聚合，配合 State 函数使用",
+    "Distributed - 分布式查询引擎，跨节点查询",
+    "Partition - 分区裁剪优化，按分区过滤",
+    "Primary Key - 主键和索引粒度 (index_granularity)",
+    "Data Skip Indexes - 跳数索引 (Bloom Filter/MinMax/Set)",
+    "Materialized View - 物化视图预聚合，自动化刷新",
+    "Dictionary - 字典表，内存 KV 存储替代 JOIN",
+    "TTL - 数据生命周期管理，自动过期清理",
+    "Mutation - 数据修改操作，异步执行",
+    "Collation - 排序规则和比较函数",
+    "Sampling - 表采样查询，快速获取近似结果"
   ],
   "configurations": {
     "server": {
-      "max_concurrent_queries": "100",
+      "max_concurrent_queries": 100,
       "max_memory_usage": "32G",
-      "max_table_size_to_drop": "50GB"
+      "max_table_size_to_drop": "50GB",
+      "max_execution_time": 300,
+      "use_uncompressed_cache": 1
     },
     "merge_tree": {
-      "max_merge_thread_size": "8",
-      "number_of_free_database_tables_to_allow_drop": "50"
+      "max_merge_thread_size": 8,
+      "number_of_free_database_tables_to_allow_drop": 50,
+      "index_granularity": 8192
     },
     "merge": {
       "max_bytes_to_merge_at_min_space_in_pool": "1024Mb",
-      "max_bytes_to_merge_at_max_space_in_pool": "50Gb"
+      "max_bytes_to_merge_at_max_space_in_pool": "50Gb",
+      "min_bytes_to_use_merge_cache": "10485760"
+    },
+    "replication": {
+      "replicated_max_parallel_fetches": 16,
+      "replicated_max_parallel_sends": 16
     }
   },
   "common_operations": [
-    "clickhouse-client --host=localhost --port=9000",
-    "CREATE TABLE ... ENGINE = MergeTree()",
+    "clickhouse-client --host=localhost --port=9000 --user=user --password=pass",
+    "CREATE TABLE ... ENGINE = MergeTree() ORDER BY (col1, col2) PARTITION BY toYYYYMM(col_date)",
     "OPTIMIZE TABLE table_name FINAL",
     "SYSTEM MERGE table_name",
     "SYSTEM REPLICAS",
-    "KILL QUERY WHERE query_id='xxx'"
+    "SYSTEM FETCH REPLICA db.table FROM 'zookeeper_node'",
+    "KILL QUERY WHERE query_id='xxx'",
+    "SHOW CREATE TABLE table_name",
+    "DESCRIBE TABLE table_name FORMAT JSON"
   ],
-  "integrations": [
-    "Kafka -> ClickHouse (Kafka Engine / Materialized View)",
-    "Flink -> ClickHouse (JDBC Sink)",
-    "Spark -> ClickHouse (JDBC)",
-    "HTTP API -> ClickHouse"
-  ],
+  "table_engines": {
+    "MergeTree": {
+      "description": "基础引擎，按 Order By 排序，支持分区",
+      "syntax": "ENGINE = MergeTree() ORDER BY (col1, col2) PARTITION BY toYYYYMM(date)",
+      "use_case": "通用日志、事件数据"
+    },
+    "ReplicatedMergeTree": {
+      "description": "支持副本复制，ZooKeeper 协调",
+      "syntax": "ENGINE = ReplicatedMergeTree('/clickhouse/tables/{shard}/table', '{replica}')",
+      "use_case": "高可用数据存储"
+    },
+    "ReplacingMergeTree": {
+      "description": "按主键去重，保留最新版本",
+      "syntax": "ENGINE = ReplacingMergeTree(version) ORDER BY id",
+      "use_case": "CDC 数据、维度表"
+    },
+    "SummingMergeTree": {
+      "description": "按主键自动 SUM 聚合",
+      "syntax": "ENGINE = SummingMergeTree((col1, col2)) ORDER BY id",
+      "use_case": "指标聚合报表"
+    },
+    "AggregatingMergeTree": {
+      "description": "配合 State 函数，预聚合存储",
+      "syntax": "ENGINE = AggregatingMergeTree() ORDER BY id",
+      "use_case": "预计算物化视图"
+    },
+    "Distributed": {
+      "description": "分布式表，跨节点查询",
+      "syntax": "ENGINE = Distributed(cluster_name, database, table, rand())",
+      "use_case": "跨分片查询"
+    }
+  },
+  "indexing": {
+    "primary_key": {
+      "description": "排序键索引，按粒度索引数据块",
+      "config": "index_granularity = 8192"
+    },
+    "skip_indexes": {
+      "bloom_filter": "ALTER TABLE t ADD INDEX idx TYPE bloom_filter GRANULARITY 4",
+      "minmax": "ALTER TABLE t ADD INDEX idx TYPE minmax GRANULARITY 4",
+      "set": "ALTER TABLE t ADD INDEX idx TYPE set(100) GRANULARITY 4"
+    },
+    "projections": {
+      "description": "查询投影，自动选择",
+      "syntax": "ALTER TABLE t ADD PROJECTION proj_name AS SELECT ... GROUP BY ..."
+    }
+  },
+  "dictionaries": {
+    "create": "CREATE DICTIONARY dict_name (id UInt64, name String) PRIMARY KEY id SOURCE(CLICKHOUSE(TABLE 'source_table')) LAYOUT(HASHED())",
+    "query": "SELECT dictGetString('dict_name', 'name', toUInt64(100))",
+    "use_case": "替代 JOIN，提升查询性能"
+  },
+  "materialized_views": {
+    "create": "CREATE MATERIALIZED VIEW mv ENGINE = SummingMergeTree() ORDER BY (d) AS SELECT date, SUM(amount) FROM source GROUP BY date",
+    "refresh": "SYSTEM REFRESH MATERIALIZED VIEW mv",
+    "incremental": "配合 AggregatingMergeTree 使用增量刷新"
+  },
+  "integrations": {
+    "kafka": {
+      "method": "Kafka Engine Table / Materialized View",
+      "create_table": "CREATE TABLE kafka_table (id Int64, data String) ENGINE = Kafka SETTINGS kafka_broker_list = 'localhost:9092', kafka_topic = 'test', kafka_group_name = 'group1', kafka_format = 'JSONEachRow'",
+      "mv_consume": "CREATE MATERIALIZED VIEW consumer_mv ENGINE = MergeTree() AS SELECT * FROM kafka_table"
+    },
+    "flink": {
+      "method": "JDBC Sink",
+      "maven": "org.apache.flink:flink-connector-jdbc:3.1.1-1.18"
+    },
+    "spark": {
+      "method": "JDBC",
+      "df.write.mode('append').jdbc(url, 'table', properties)"
+    },
+    "http": {
+      "method": "HTTP API",
+      "curl 'http://localhost:8123/?query=SELECT+1'"
+    }
+  },
   "best_practices": [
-    "合理设计主键和排序键",
-    "使用分区裁剪减少扫描量",
-    "善用物化视图加速查询",
-    "使用字典表替代 JOIN",
-    "合理设置 TTL 清理历史数据"
+    "合理设计 ORDER BY 排序键，区分度高的放前面",
+    "使用分区裁剪减少扫描量，分区键选时间字段",
+    "善用物化视图加速聚合查询",
+    "使用字典表替代频繁 JOIN 的维度表",
+    "合理设置 TTL 清理历史数据",
+    "开启 ReplicatedMergeTree 保证高可用",
+    "根据数据量调整 index_granularity",
+    "使用 PREWHERE 优化查询性能"
   ],
+  "optimization": {
+    "query": {
+      "prewhere": "SELECT * FROM table PREWHERE date = '2024-01-15'",
+      "settings": "SET max_block_size = 65536; SET merge_tree_max_rows_to_use_cache = 10485760"
+    },
+    "ttl": {
+      "disk": "ALTER TABLE t MODIFY TTL date + INTERVAL 30 DAY",
+      "volume": "TTL date TO VOLUME 'slow' DELETE"
+    },
+    "partitioning": {
+      "range": "PARTITION BY toYYYYMM(date)",
+      "list": "PARTITION BY status",
+      "hash": "PARTITION BY hash_tuple(id)"
+    }
+  },
   "use_cases": [
-    "用户行为分析",
-    "实时报表",
-    "日志分析",
-    "AB Testing"
+    "用户行为分析 - 高并发点查和聚合",
+    "实时报表 - 秒级延迟指标展示",
+    "日志分析 - 快速全文检索",
+    "AB Testing - 分组统计和留存分析",
+    "监控时序 - 高吞吐写入和聚合"
   ],
   "related_docs": [
     "docs/03-olap/clickhouse/01-architecture.md",

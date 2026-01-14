@@ -1,82 +1,163 @@
 {
   "name": "Apache Kafka",
-  "description": "高吞吐量分布式消息队列，支持消息持久化、流处理和事件溯源",
+  "description": "高吞吐量分布式消息队列，支持消息持久化、流处理、事件溯源和实时数据管道",
   "category": "消息队列",
   "key_concepts": [
-    "Broker - 消息代理节点，存储消息",
-    "Topic - 消息主题，逻辑分类",
-    "Partition - 消息分区，并行处理",
+    "Broker - 消息代理节点，存储消息和分区副本",
+    "Topic - 消息主题，逻辑分类单元",
+    "Partition - 消息分区，并行处理和顺序保证",
     "Replica - 副本机制，高可用保证",
-    "ISR - 同步副本集，数据一致性",
-    "Leader/Follower - 主从复制",
-    "Producer - 消息生产者",
-    "Consumer - 消息消费者",
-    "Consumer Group - 消费者组，负载均衡",
+    "ISR - 同步副本集，数据一致性保证",
+    "Leader/Follower - 主从复制，Leader 处理读写",
+    "Producer - 消息生产者，发送消息到 Topic",
+    "Consumer - 消息消费者，拉取消息",
+    "Consumer Group - 消费者组，负载均衡消费",
     "Offset - 消费位移，记录消费位置",
-    "Rebalance - 分区再分配，组成员变化",
+    "Rebalance - 分区再分配，组成员变化触发",
     "Kafka Streams - 轻量级流处理引擎",
-    "Controller - 集群控制器",
-    "Log Compaction - 日志压缩"
+    "Kafka Connect - 数据集成框架",
+    "Schema Registry - Schema 注册中心",
+    "KSQL - SQL 风格的流处理"
   ],
   "configurations": {
     "broker": {
-      "num.network.threads": "8",
-      "num.io.threads": "32",
-      "socket.send.buffer.bytes": "102400",
-      "socket.receive.buffer.bytes": "102400",
-      "socket.request.max.bytes": "104857600"
+      "num.network.threads": 8,
+      "num.io.threads": 32,
+      "socket.send.buffer.bytes": 102400,
+      "socket.receive.buffer.bytes": 102400,
+      "socket.request.max.bytes": 104857600,
+      "log.dirs": "/data/kafka",
+      "auto.create.topics.enable": true
     },
     "topic": {
-      "log.segment.bytes": "1073741824",
-      "log.retention.hours": "168",
-      "log.retention.check.interval.ms": "300000"
-    },
-    "replica": {
-      "default.replication.factor": "3",
-      "min.insync.replicas": "2"
+      "log.segment.bytes": 1073741824,
+      "log.retention.hours": 168,
+      "log.retention.check.interval.ms": 300000,
+      "min.insync.replicas": 2,
+      "default.replication.factor": 3
     },
     "producer": {
       "acks": "all",
-      "retries": "3",
-      "batch.size": "16384",
-      "linger.ms": "5",
-      "compression.type": "lz4"
+      "retries": 3,
+      "batch.size": 16384,
+      "linger.ms": 5,
+      "compression.type": "lz4",
+      "buffer.memory": 33554432,
+      "enable.idempotence": true
     },
     "consumer": {
-      "fetch.min.bytes": "1",
-      "fetch.max.wait.ms": "500",
-      "auto.offset.reset": "earliest"
+      "fetch.min.bytes": 1,
+      "fetch.max.wait.ms": 500,
+      "auto.offset.reset": "earliest",
+      "enable.auto.commit": true,
+      "max.poll.records": 500
     }
   },
   "common_operations": [
-    "kafka-topics.sh --create --topic test --partitions 3 --replication-factor 2",
-    "kafka-topics.sh --describe --topic test",
-    "kafka-topics.sh --alter --topic test --partitions 4",
+    "kafka-topics.sh --create --topic test --partitions 3 --replication-factor 2 --bootstrap-server localhost:9092",
+    "kafka-topics.sh --describe --topic test --bootstrap-server localhost:9092",
+    "kafka-topics.sh --alter --topic test --partitions 4 --bootstrap-server localhost:9092",
     "kafka-console-producer.sh --broker-list localhost:9092 --topic test",
-    "kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test",
-    "kafka-consumer-groups.sh --describe --group group1",
-    "kafka-consumer-groups.sh --reset-offsets --group group1 --topic test --to-earliest",
-    "kafka-reassign-partitions.sh --execute --reassignment-json-file reassign.json"
+    "kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning",
+    "kafka-consumer-groups.sh --describe --group group1 --bootstrap-server localhost:9092",
+    "kafka-consumer-groups.sh --reset-offsets --group group1 --topic test --to-earliest --execute",
+    "kafka-reassign-partitions.sh --execute --reassignment-json-file reassign.json",
+    "kafka-configs.sh --alter --entity-type topics --entity-name test --add-config retention.ms=86400000",
+    "kafka-delete-records.sh --bootstrap-server localhost:9092 --offset-json-file delete.json"
   ],
-  "integrations": [
-    "Logs -> Kafka (Filebeat/Fluentd)",
-    "App -> Kafka (Producer API)",
-    "Kafka -> Flink (KafkaSource/KafkaSink)",
-    "Kafka -> Spark Streaming (KafkaUtils)",
-    "Kafka -> ClickHouse (Kafka Engine Table)"
-  ],
+  "producer_best_practices": {
+    "batching": {
+      "description": "批量发送减少网络开销",
+      "config": "linger.ms=5, batch.size=16384"
+    },
+    "compression": {
+      "description": "压缩减少传输和存储",
+      "types": ["lz4", "zstd", "snappy"],
+      "config": "compression.type=lz4"
+    },
+    "idempotence": {
+      "description": "幂等生产防止重复",
+      "config": "enable.idempotence=true, acks=all"
+    },
+    "partitioning": {
+      "description": "合理分区保证顺序和并行",
+      "custom": "实现 Partitioner 接口"
+    }
+  },
+  "consumer_best_practices": {
+    "consumer_groups": {
+      "description": "使用消费者组实现负载均衡",
+      "rule": "同一分区内消息顺序保证，不同分区并行消费"
+    },
+    "offset_management": {
+      "description": "手动管理 Offset 保证 Exactly-Once",
+      "config": "enable.auto.commit=false"
+    },
+    "fetch_optimization": {
+      "description": "合理设置 Fetch 参数",
+      "config": "fetch.max.bytes=52428800, max.poll.records=500"
+    }
+  },
+  "integrations": {
+    "flink": {
+      "source": "KafkaSource.builder().setTopics(\"topic\").setStartingOffsets(...).build()",
+      "sink": "KafkaSink.builder().setBootstrapServers(\"...\").build()",
+      "formats": "JSON, Avro, Debezium, Canal"
+    },
+    "spark": {
+      "streaming": "spark.readStream.format(\"kafka\").option(\"kafka.bootstrap.servers\", \"...\").load()",
+      "structured": "KafkaSource for Structured Streaming"
+    },
+    "connect": {
+      "source": "Debezium MySQL Connector",
+      "sink": "Elasticsearch Sink, HDFS Sink"
+    },
+    "cdc": {
+      "debezium": "数据库变更捕获",
+      "maxwell": "MySQL CDC",
+      "canal": "Alibaba MySQL Binlog 同步"
+    }
+  },
+  "kafka_streams": {
+    "topology": "KStream DSL / Processor API",
+    "windowing": "Tumbling / Sliding / Session / Hopping",
+    "state_stores": "RocksDB 状态存储",
+    "joins": "Window Join / Global Join",
+    "tables": "KTable / GlobalKTable",
+    "exactly_once": "transactional.id, isolation.level=read_committed"
+  },
+  "ksql": {
+    "create_stream": "CREATE STREAM stream_name (id INT, data STRING) WITH (kafka_topic='topic', value_format='JSON')",
+    "create_table": "CREATE TABLE table_name (id INT, cnt BIGINT) WITH (kafka_topic='topic', value_format='JSON')",
+    "streaming_query": "SELECT window_start, COUNT(*) FROM stream WINDOW TUMBLING (SIZE 1 MINUTE) GROUP BY window_start",
+    "persistent_query": "CREATE TABLE result AS SELECT id, COUNT(*) FROM stream GROUP BY id"
+  },
+  "monitoring": {
+    "metrics": {
+      "under_replicated_partitions": "副本不足分区数",
+      "isr_expands": "ISR 扩展频率",
+      "consumer_lag": "消费延迟",
+      "request_latency": "请求延迟"
+    },
+    "tools": ["JMX", "Prometheus", "Grafana", "Confluent Control Center"]
+  },
   "best_practices": [
-    "根据吞吐量合理设置分区数",
-    "使用压缩提升传输效率",
-    "合理设置消息大小和批次",
+    "根据吞吐量合理设置分区数 (3-100)",
+    "使用压缩提升传输效率 (lz4/zstd)",
+    "合理设置消息大小和批次 (batch.size, linger.ms)",
     "监控消费延迟及时处理积压",
-    "开启合理副本保证高可用"
+    "开启合理副本保证高可用",
+    "使用幂等生产保证消息不丢失",
+    "合理设置 Topic 保留策略",
+    "使用 Schema Registry 管理 Schema"
   ],
   "use_cases": [
-    "日志收集系统",
-    "消息总线",
-    "事件驱动架构",
-    "实时数据管道"
+    "日志收集系统 - 统一日志采集",
+    "消息总线 - 服务间异步通信",
+    "事件驱动架构 - 事件溯源和 CQRS",
+    "实时数据管道 - ETL 数据同步",
+    "CDC 数据同步 - 数据库变更捕获",
+    "流处理平台 - Kafka Streams / KSQL"
   ],
   "related_docs": [
     "docs/02-message-queue/kafka/01-architecture.md",

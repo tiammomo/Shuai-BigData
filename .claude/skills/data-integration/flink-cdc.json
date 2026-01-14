@@ -1,0 +1,136 @@
+{
+  "name": "Flink CDC",
+  "description": "Change Data Capture 框架，支持数据库实时变更捕获，与 Flink 深度集成，支持全量和增量同步",
+  "category": "数据集成",
+  "key_concepts": [
+    "CDC - Change Data Capture，变更数据捕获",
+    "Binlog - MySQL 二进制日志，记录所有变更",
+    "Slot - 槽位分配，MySQL 连接管理",
+    "Full Coupling - 全量+增量耦合读取",
+    "Pipeline - CDC 数据管道",
+    "Schema Evolution - Schema 变更同步",
+    "Watermark - 水位线，时间顺序保证",
+    "Data Types Mapping - 数据类型映射",
+    "Chunk Splitting - 分块策略，大表拆分"
+  ],
+  "configurations": {
+    "mysql": {
+      "hostname": "localhost",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database-name": "db",
+      "table-name": "table",
+      "server-time-zone": "Asia/Shanghai",
+      "scan.incremental.snapshot.enabled": true,
+      "scan.incremental.snapshot.chunk.size": 8096
+    },
+    "postgres": {
+      "hostname": "localhost",
+      "port": 5432,
+      "username": "postgres",
+      "password": "password",
+      "database-name": "db",
+      "schema-name": "public",
+      "table-name": "table",
+      "decoding.plugin.name": "pgoutput"
+    }
+  },
+  "common_operations": [
+    "CREATE TABLE mysql_source (...) WITH ('connector'='mysql-cdc', ...)",
+    "CREATE TABLE postgres_source (...) WITH ('connector'='postgres-cdc', ...)",
+    "INSERT INTO sink_table SELECT * FROM mysql_source",
+    "flink run -c org.apache.flink.cdc.connectors.JobGeneratorPipeline xxx.jar"
+  ],
+  "mysql_cdc": {
+    "dependencies": {
+      "maven": "com.ververica:flink-connector-mysql-cdc:3.1.1",
+      "flink_version": "1.14, 1.16, 1.17, 1.18"
+    },
+    "create_source": "CREATE TABLE source (...) WITH ('connector'='mysql-cdc', 'hostname'='localhost', 'port'='3306', 'username'='root', 'password'='***', 'database-name'='mydb', 'table-name'='orders')",
+    "table_options": {
+      "server-id": "5001-5004",
+      "scan.startup.mode": "initial",
+      "scan.incremental.snapshot.enabled": true
+    },
+    "startup_modes": {
+      "initial": "全量+增量，先历史后实时",
+      "earliest-offset": "从最早位点开始",
+      "latest-offset": "从最新位点开始",
+      "timestamp": "从指定时间戳开始",
+      "specific-offset": "从指定位点开始"
+    }
+  },
+  "postgres_cdc": {
+    "dependencies": {
+      "maven": "com.ververica:flink-connector-postgres-cdc:3.1.1"
+    },
+    "create_source": "CREATE TABLE source (...) WITH ('connector'='postgres-cdc', 'hostname'='localhost', 'port'='5432', 'username'='postgres', 'password'='***', 'database-name'='mydb', 'schema-name'='public', 'table-name'='orders')",
+    "replication_slot": "需配置 PostgreSQL 复制槽",
+    "publication": "需配置发布 (Publication)"
+  },
+  "sync_scenarios": {
+    "mysql_to_paimon": {
+      "source": "MySQL CDC",
+      "sink": "Paimon Sink",
+      "pattern": "MySQL -> Flink CDC -> Paimon 实时入湖"
+    },
+    "mysql_to_kafka": {
+      "source": "MySQL CDC",
+ "Kafka",
+      "sink":      "pattern": "MySQL -> Flink CDC -> Kafka (Debezium Format)"
+    },
+    "mysql_to_doris": {
+      "source": "MySQL CDC",
+      "sink": "Doris",
+      "pattern": "MySQL -> Flink CDC -> Doris 实时同步"
+    },
+    "multi_table": {
+      "source": "Database CDC",
+      "sink": "Multiple Tables",
+      "pattern": "正则匹配多表，路由到不同 Sink"
+    }
+  },
+  "schema_evolution": {
+    "support": "支持列增删改",
+    "behavior": "根据 Sink 能力决定处理方式",
+    "paimon": "自动同步 Schema 变更",
+    "kafka": "输出 Schema 变更事件"
+  },
+  "best_practices": [
+    "配置合适的 server-id 范围，避免连接冲突",
+    "开启增量快照模式，大表无锁读取",
+    "合理设置 Chunk Size，根据表大小调整",
+    "使用 Flink SQL 简化 CDC 管道开发",
+    "配合 Paimon 实现实时数据湖",
+    "监控 Binlog 积压和消费延迟",
+    "处理 Schema 变更兼容性"
+  ],
+  "optimization": {
+    "snapshot": {
+      "chunk_size": "scan.incremental.snapshot.chunk.size=8096~65536",
+      "parallelism": "scan.parallelism 控制快照并行度"
+    },
+    "binlog": {
+      "fetch_size": "binlog.fetch.size=1000~10000",
+      "connect_timeout": "connect.timeout 设置合适的超时"
+    },
+    "parallelism": {
+      "source": "source parallelism 控制 CDC 并行度",
+      "sink": "sink parallelism 控制写入并行度"
+    }
+  },
+  "use_cases": [
+    "MySQL 实时入湖 - Paimon/Iceberg/Hudi",
+    "数据库同步 - 跨库实时同步",
+    "数据变更捕获 - Kafka 发布变更事件",
+    "实时数仓 - 数据库到 OLAP 实时同步",
+    "微服务同步 - 多服务数据一致性"
+  ],
+  "related_docs": [
+    "docs/03-data-integration/flink-cdc/01-architecture.md",
+    "docs/03-data-integration/flink-cdc/02-mysql-cdc.md",
+    "docs/03-data-integration/flink-cdc/03-postgres-cdc.md",
+    "docs/03-data-integration/flink-cdc/04-pipeline-sync.md"
+  ]
+}

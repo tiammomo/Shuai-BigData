@@ -1,0 +1,159 @@
+{
+  "name": "Apache Paimon",
+  "description": "流式数据湖，支持实时流批一体存储，基于 LakeFormat，提供 Changelog 和增量消费能力",
+  "category": "数据湖",
+  "key_concepts": [
+    "Catalog - 元数据管理 (Hadoop/Hive/Glue)",
+    "Table - 数据表，支持主键和 Append 模式",
+    "Bucket - 分桶，加速点查和 JOIN",
+    "Partition - 分区，支持多级分区",
+    "Merge Engine - 合并引擎 (deduplicate/first-row/aggregation)",
+    "Changelog Producer - 日志生成器 (input/lookup/compactor)",
+    "Tag - 快照标签，时间旅行",
+    "Snapshots - 快照管理，版本控制",
+    "Compaction - 自动/手动合并小文件",
+    "Write Mode - 流式/批量写入模式",
+    "Consumer - 消费者管理，增量读取",
+    "TTL - 数据生命周期管理"
+  ],
+  "configurations": {
+    "table": {
+      "bucket": 4,
+      "bucket-key": "id",
+      "merge-engine": "deduplicate",
+      "changelog-producer": "input",
+      "write-mode": "changelog-producer"
+    },
+    "compaction": {
+      "compaction.min.file-num": 5,
+      "compaction.max.file-num": 50,
+      "compaction.level.dedicated-writer": 4
+    },
+    "ttl": {
+      "table.exec.state.ttl": "7d",
+      "table.exec.sink.ttl": "7d"
+    },
+    "read": {
+      "read.vectorized.enabled": true,
+      "read.batch-size": 4096
+    }
+  },
+  "common_operations": [
+    "CREATE CATALOG paimon WITH ('type'='paimon', 'warehouse'='hdfs://...')",
+    "CREATE TABLE table_name (id BIGINT, name STRING, ... ) WITH ('bucket'='4')",
+    "CALL paimon.system.create_tag('table_name', 'v1', snapshot_id)",
+    "CALL paimon.system.compact('table_name')",
+    "CALL paimon.system.expire_snapshots('table_name', 30, 100)",
+    "SELECT * FROM table_name$snapshots"
+  ],
+  "table_types": {
+    "primary_key": {
+      "description": "主键表，支持 UPSERT 和增量消费",
+      "syntax": "CREATE TABLE tbl (id BIGINT, name STRING, PRIMARY KEY (id)) WITH (...)",
+      "merge-engines": ["deduplicate", "first-row", "aggregation", "partial-update"]
+    },
+    "append": {
+      "description": "Append 表，仅支持追加写入",
+      "syntax": "CREATE TABLE tbl (id BIGINT, data STRING) WITH ('merge-engine'='first-row')",
+      "use_case": "日志、时序数据"
+    },
+    "change_log": {
+      "description": "变更日志表，记录完整变更历史",
+      "syntax": "CREATE TABLE tbl (...) WITH ('changelog-producer'='input')",
+      "use_case": "CDC 数据同步"
+    }
+  },
+  "integrations": {
+    "flink": {
+      "version": "1.14, 1.16, 1.17, 1.18",
+      "maven": "org.apache.paimon:paimon-flink-${flink.version}:${paimon.version}",
+      "sql": "CREATE TABLE paimon_table (...) WITH ('connector'='paimon', ...)",
+      "cdc": "Flink CDC -> Paimon 实时同步"
+    },
+    "spark": {
+      "version": "3.2, 3.3, 3.4, 3.5",
+      "maven": "org.apache.paimon:paimon-spark-${spark.version}:${paimon.version}",
+      "sql": "SET spark.sql.catalog.paimon=org.apache.paimon.spark.SparkCatalog"
+    },
+    "hive": {
+      "version": "2.3, 3.1",
+      "maven": "org.apache.paimon:paimon-hive-${hive.version}:${paimon.version}"
+    }
+  },
+  "cdc_sync": {
+    "mysql": {
+      "source": "MySQL-CDC",
+      "sql": "CREATE TABLE mysql_db.mysql_table (...) WITH ('connector'='mysql-cdc', ...)",
+      "to_paimon": "INSERT INTO paimon_table SELECT * FROM mysql_table"
+    },
+    "postgres": {
+      "source": "PostgreSQL-CDC",
+      "sql": "CREATE TABLE pg_db.pg_table (...) WITH ('connector'='postgres-cdc', ...)"
+    },
+    "oralce": {
+      "source": "Oracle-CDC",
+      "sql": "CREATE TABLE ora_table (...) WITH ('connector'='oracle-cdc', ...)"
+    }
+  },
+  "time_travel": {
+    "snapshots": "SELECT * FROM table_name$snapshots",
+    "by_version": "SELECT * FROM table_name VERSION AS OF 123456789",
+    "by_time": "SELECT * FROM table_name TIMESTAMP AS OF '2024-01-15 12:00:00'",
+    "by_tag": "SELECT * FROM table_name VERSION AS OF 'v1.0'",
+    "incremental": "SET paimon.scan.mode='incremental'; SET paimon.scan.start-tag='v1'"
+  },
+  "best_practices": [
+    "选择合适的 Bucket 数，一般 4-32",
+    "Bucket Key 选择高基数字段用于点查",
+    "分区键选择时间字段便于历史清理",
+    "使用 Changelog Producer 记录完整变更",
+    "定期执行 Compaction 合并小文件",
+    "设置 TTL 清理过期数据",
+    "增量读取时配置 Consumer 管理偏移"
+  ],
+  "optimization": {
+    "bucket": {
+      "small_data": "bucket=4-8",
+      "large_data": "bucket=16-32",
+      "high_qps": "bucket=64-128"
+    },
+    "compaction": {
+      "auto": "compaction.min.file-num=5, max.file-num=50",
+      "manual": "CALL paimon.system.compact('table', 'strategy'='full')"
+    },
+    "read": {
+      "vectorized": "read.vectorized.enabled=true, read.batch-size=4096",
+      "cache": "paimon.cache.enabled=true"
+    }
+  },
+  "use_cases": [
+    "实时数据湖 - 流批一体存储",
+    "CDC 数据同步 - MySQL/PostgreSQL 实时入湖",
+    "特征存储 - 实时特征和离线特征统一",
+    "事件溯源 - 完整变更历史记录",
+    "时间旅行查询 - 历史版本数据查询"
+  ],
+  "ai_llm_scenarios": {
+    "rag": {
+      "document_store": "原始文档存储在 Paimon Append 表",
+      "chunk_index": "文档切片和向量存储在主键表",
+      "cdc_sync": "业务库变更实时同步到文档库"
+    },
+    "feature_store": {
+      "realtime_features": "Paimon 主键表存储实时特征",
+      "batch_features": "Paimon Append 表存储批量特征",
+      "version_control": "Tag 管理特征版本"
+    },
+    "data_lineage": {
+      "snapshots": "完整数据版本历史",
+      "tags": "模型训练数据集快照",
+      "time_travel": "回溯训练数据版本"
+    }
+  },
+  "related_docs": [
+    "docs/04-data-lake/paimon/01-architecture.md",
+    "docs/04-data-lake/paimon/02-usage.md",
+    "docs/04-data-lake/paimon/03-spark-sql.md",
+    "docs/00-overview/ai-llm-scenarios.md"
+  ]
+}

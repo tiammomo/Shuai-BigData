@@ -1,0 +1,140 @@
+{
+  "name": "Apache Hudi",
+  "description": "数据湖平台，支持 Copy-on-Write 和 Merge-on-Read 两种表类型，提供增量处理和索引能力",
+  "category": "数据湖",
+  "key_concepts": [
+    "Copy-on-Write (CoW) - 写时复制，读性能好",
+    "Merge-on-Read (MoR) - 读时合并，写性能好",
+    "Timeline - 时间线，管理所有操作",
+    "Instant - 操作实例 (commit/clean/rollback)",
+    "File Groups - 文件组，按分区组织",
+    "File Slices - 文件切片，同一版本的多个文件",
+    "Record - 记录，键值对结构",
+    "索引 - Bloom Filter / Bucket / Simple",
+    "Compaction - 合并，将 Base 文件和 Log 文件合并",
+    "Clean - 清理，旧版本文件清理",
+    "Clustering - 重排，优化文件布局",
+    "Table Services - 表服务 (Compaction/Clean/Clustering)"
+  ],
+  "configurations": {
+    "table": {
+      "table.type": "cow",
+      "primaryKey": "id",
+      "preCombineField": "ts"
+    },
+    "write": {
+      "write.bucket.assign.mode": "fixed",
+      "write.parquet.file.size": "134217728",
+      "write.merge.max.size": "1073741824",
+      "compaction.async.enabled": true
+    },
+    "read": {
+      "read.streaming.enabled": false,
+      "read.optimized.file.sizes": true
+    },
+    "clean": {
+      "hoodie.cleaner.commits.retained": 30,
+      "hoodie.cleaner.hours.retained": 168
+    }
+  },
+  "common_operations": [
+    "CREATE TABLE table (...) USING hudi OPTIONS (type='cow', primaryKey='id')",
+    "INSERT INTO table VALUES (...)",
+    "UPDATE table SET col=val WHERE id=1",
+    "DELETE FROM table WHERE id=1",
+    "MERGE INTO table AS t USING source AS s ON t.id=s.id WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT ...",
+    "SET hoodie.datasource.query.type=incremental; SET hoodie.datasource.query.begin.instant.time=xxx",
+    "CALL hoodie.system.compact('table')",
+    "CALL hoodie.system.clean('table')"
+  ],
+  "table_types": {
+    "copy_on_write": {
+      "description": "写时复制，每次写入创建新版本数据文件",
+      "pros": "读取快，无需合并",
+      "cons": "写入慢，文件膨胀",
+      "use_case": "报表分析、数据科学"
+    },
+    "merge_on_read": {
+      "description": "读时合并，使用 Log 文件增量写入",
+      "pros": "写入快，延迟低",
+      "cons": "读取需要合并",
+      "use_case": "实时分析、CDC 同步"
+    }
+  },
+  "index_types": {
+    "bloom_filter": {
+      "description": "布隆过滤器索引，默认",
+      "properties": ["hoodie.index.type=BLOOM", "hoodie.bloom.index.filter.rate=0.05"]
+    },
+    "bucket": {
+      "description": "分桶索引，高性能",
+      "properties": ["hoodie.index.type=BUCKET", "hoodie.bucket.index.num.buckets=200"]
+    },
+    "simple": {
+      "description": "简单索引，内存映射",
+      "properties": ["hoodie.index.type=SIMPLE"]
+    },
+    "stateful": {
+      "description": "状态索引，支持动态更新",
+      "properties": ["hoodie.index.type=BUCKET", "hoodie.bucket.index.hash.field=id"]
+    }
+  },
+  "integrations": {
+    "spark": {
+      "maven": "org.apache.hudi:hudi-spark3.4-bundle_2.12:0.14.1",
+      "sql": "spark.sql.extensions=org.apache.spark.sql.hudi.HoodieSparkSessionExtension"
+    },
+    "flink": {
+      "maven": "org.apache.hudi:hudi-flink-bundle_2.12:0.14.1",
+      "sql": "CREATE TABLE hoodie_table (...) WITH ('connector'='hudi', ...)"
+    },
+    "presto": {
+      "connector": "hudi",
+      "properties": {"hudi.metadata.metrics.enable": true}
+    }
+  },
+  "incremental_query": {
+    "configure": [
+      "SET hoodie.datasource.query.type=incremental",
+      "SET hoodie.datasource.query.begin.instant.time=20240115120000"
+    ],
+    "sql": "SELECT * FROM table WHERE _hoodie_commit_time > '20240115120000'",
+    "use_case": "增量数据处理、变更捕获"
+  },
+  "optimization": {
+    "compaction": {
+      "inline": "hoodie.compact.inline=true, hoodie.compact.schedule.inline=true",
+      "strategy": "hoodie.compact.trigger.strategy=num_commits, hoodie.compact.target.file.size=1073741824"
+    },
+    "clustering": {
+      "inline": "hoodie.clustering.inline=true",
+      "strategy": "hoodie.clustering.strategy.class=org.apache.hudi.client.clustering.plan.strategy.SparkRecentDaysClusteringStrategy"
+    },
+    "cleaning": {
+      "retained": "hoodie.cleaner.commits.retained=30, hoodie.cleaner.hours.retained=168",
+      "async": "hoodie.clean.async=true"
+    }
+  },
+  "best_practices": [
+    "根据读写比例选择 CoW 或 MoR",
+    "使用 Bucket 索引提升写入性能",
+    "配置合适的文件大小和压缩策略",
+    "定期执行 Compaction 和 Cleaning",
+    "使用预CombineField 处理乱序数据",
+    "开启异步表服务减少写入延迟",
+    "监控 Commit 成功率和小文件数量"
+  ],
+  "use_cases": [
+    "CDC 数据入湖 - 实时同步数据库变更",
+    "增量数据处理 - 增量 ETL 和分析",
+    "数据回溯 - 历史版本查询",
+    "数据统一 - 多源数据整合到湖",
+    "流批一体 - 统一存储支撑多种场景"
+  ],
+  "related_docs": [
+    "docs/04-data-lake/hudi/01-architecture.md",
+    "docs/04-data-lake/hudi/02-data-operations.md",
+    "docs/04-data-lake/hudi/03-flink-integration.md",
+    "docs/04-data-lake/hudi/04-spark-sql.md"
+  ]
+}

@@ -1,20 +1,22 @@
 {
   "name": "Apache Doris",
-  "description": "基于 MPP 架构的分析型数据库，支持高并发实时查询，MySQL 协议兼容",
+  "description": "基于 MPP 架构的分析型数据库，支持高并发实时查询，MySQL 协议兼容，支持向量化执行引擎",
   "category": "OLAP",
   "key_concepts": [
-    "FE - 前端节点，SQL 解析和查询调度",
+    "FE - 前端节点，SQL 解析、查询调度和元数据管理",
     "BE - 后端节点，数据存储和查询执行",
-    "Tablet - 数据分片，最小存储单元",
-    "Partition - 逻辑分区，支持 Range/List",
-    "Rollup - 物化索引，加速查询",
-    "Unique Model - 唯一键模型，支持 UPSERT",
-    "Aggregate Model - 聚合模型，预聚合",
-    "Duplicate Model - 明细模型，保留所有数据",
-    "Bloom Filter - 布隆过滤器，加速点查",
-    "物化视图 - Materialized View 自动选择",
-    "Colocate Join - 本地 Join 优化",
-    "Bucket Shuffle Join - 分桶 Join 优化"
+    "Tablet - 数据分片，最小存储和调度单元",
+    "Partition - 逻辑分区，支持 Range/List/Hash",
+    "Rollup - 物化索引，按列预聚合加速查询",
+    "Unique Model - 唯一键模型，支持 UPSERT 操作",
+    "Aggregate Model - 聚合模型，按 Key 预聚合",
+    "Duplicate Model - 明细模型，保留所有原始数据",
+    "Bloom Filter - 布隆过滤器，加速点查和范围查询",
+    "物化视图 - 自动选择最优 Rollup",
+    "Colocate Join - 同集群 Join，避免 Shuffle",
+    "Bucket Shuffle Join - 基于分桶的本地 Join 优化",
+    "Runtime Filter - 运行时过滤，下推过滤条件",
+    "AQE - 自适应查询优化，动态调整执行计划"
   ],
   "configurations": {
     "fe": {
@@ -31,35 +33,99 @@
     },
     "storage": {
       "storage_root_path": "/data/doris/be/storage",
-      "max_tablet_version_num": "500"
+      "max_tablet_version_num": 500
+    },
+    "query": {
+      "parallel_fragment_exec_instance_num": 8,
+      "enable_spilling": true,
+      "external_sort_bytes_threshold": 1073741824
     }
   },
   "common_operations": [
-    "mysql -h fe_host -P 9030 -u root",
+    "mysql -h fe_host -P 9030 -u root -p",
     "SHOW FRONTENDS / SHOW BACKENDS",
     "ALTER SYSTEM ADD BACKEND 'be_host:9050'",
     "ALTER SYSTEM DECOMMISSION BACKEND 'be_host:9050'",
     "ADMIN SHOW REPLICA DISTRIBUTION FROM table_name",
-    "SHOW PROC '/cluster_health/tablet_health'"
+    "SHOW PROC '/cluster_health/tablet_health'",
+    "CREATE TABLE ... DUPLICATE KEY(id) DISTRIBUTED BY HASH(id) BUCKETS 10",
+    "SELECT * FROM table_name PARTITION(p1, p2)",
+    "EXPLAIN SELECT ... / EXPLAIN ANALYZE SELECT ..."
   ],
-  "integrations": [
-    "Kafka -> Doris (Routine Load)",
-    "Flink -> Doris (Doris Stream Load)",
-    "Spark -> Doris (Spark-Doris-Connector)",
-    "Hive -> Doris (INSERT INTO SELECT)"
-  ],
+  "data_models": {
+    "unique": {
+      "description": "唯一键模型，保留最新数据",
+      "syntax": "UNIQUE KEY(id, name) ...",
+      "use_case": "CDC 数据同步、维度表"
+    },
+    "aggregate": {
+      "description": "聚合模型，自动按 Key 聚合",
+      "syntax": "AGGREGATE KEY(id, name) SUM(amount) ...",
+      "use_case": "指标统计、预聚合表"
+    },
+    "duplicate": {
+      "description": "明细模型，保留所有数据",
+      "syntax": "DUPLICATE KEY(id, name) ...",
+      "use_case": "明细数据、日志分析"
+    }
+  },
+  "dml_operations": {
+    "insert": "INSERT INTO table_name VALUES(...) / INSERT INTO table_name SELECT ...",
+    "update": "UPDATE table_name SET col=val WHERE condition",
+    "delete": "DELETE FROM table_name WHERE condition",
+    "upsert": "INSERT INTO table_name VALUES(...) ON DUPLICATE KEY UPDATE col=val"
+  },
+  "integrations": {
+    "kafka": {
+      "method": "Routine Load",
+      "syntax": "CREATE ROUTINE LOAD db.job ON table_name PROPERTIES(...) FROM KAFKA (...)",
+      "example": "CREATE ROUTINE LOAD test_job ON test_table PROPERTIES(\"max_batch_interval\"=\"20\") FROM KAFKA(\"kafka_broker_list\"=\"localhost:9092\",\"kafka_topic\"=\"test\")"
+    },
+    "flink": {
+      "method": "Doris Stream Load / Flink-Doris-Connector",
+      "maven": "org.apache.doris:flink-doris-connector-1.16:1.4.0"
+    },
+    "spark": {
+      "method": "Spark-Doris-Connector",
+      "maven": "org.apache.doris:spark-doris-connector-3.1_2.12:1.3.0"
+    },
+    "datax": {
+      "method": "DataX DorisWriter",
+      "config": "writer: { parameter: { postSql: \"...\", preSql: \"...\" } }"
+    }
+  },
   "best_practices": [
-    "合理选择数据模型",
-    "分区键和时间相关",
-    "分桶键选高基数字段",
-    "使用物化视图加速查询",
-    "开启 AQE 优化查询"
+    "根据数据量选择合适的分桶数 (10-100)",
+    "分区键选择时间相关字段，便于历史数据清理",
+    "分桶键选择高基数字段，避免数据倾斜",
+    "使用物化视图加速复杂查询",
+    "开启 AQE 优化查询执行计划",
+    "合理设置 Runtime Filter 类型和大小",
+    "大表 JOIN 时使用 Colocate Join",
+    "监控 Tablet 状态和副本分布"
   ],
+  "optimization": {
+    "indexing": {
+      "bloom_filter": "ALTER TABLE table_name SET PROPERTIES(\"bloom_filter_columns\"=\"col1,col2\")",
+      "bitmap_index": "CREATE INDEX idx_name ON table_name(col) USING BITMAP",
+      "inverted_index": "ALTER TABLE table_name ADD INDEX idx_name(col) USING INVERTED"
+    },
+    "materialized_view": {
+      "create": "CREATE MATERIALIZED VIEW mv_name AS SELECT col1, SUM(col2) FROM table_name GROUP BY col1",
+      "select": "查询自动选择最优物化视图"
+    },
+    "tuning": {
+      "runtime_filter": "SET runtime_filter_type='BLOOM_FILTER,IN_LIST_FILTER'",
+      "join_reorder": "SET enable_cost_based_join_reorder=true",
+      "streaming_preaggregation": "SET enable_streaming_preaggregation=true"
+    }
+  },
   "use_cases": [
-    "实时报表分析",
-    "多维数据分析",
-    "用户画像查询",
-    "实时指标看板"
+    "实时报表分析 - 秒级数据延迟",
+    "多维数据分析 - 灵活维度组合",
+    "用户画像查询 - 高并发点查",
+    "实时指标看板 - PV/UV/GMV",
+    "日志分析系统 - 快速全文检索"
   ],
   "related_docs": [
     "docs/03-olap/doris/01-architecture.md",

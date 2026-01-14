@@ -1,0 +1,110 @@
+{
+  "name": "Delta Lake",
+  "description": "基于 Apache Spark 的事务性数据湖格式，支持 ACID 事务、Schema 演进、时间旅行和变更数据流",
+  "category": "数据湖",
+  "key_concepts": [
+    "Transaction Log (Delta Log) - 事务日志，记录所有操作",
+    "ACID Transactions - 原子性、一致性、隔离性、持久性",
+    "Schema Enforcement - Schema 强制校验",
+    "Schema Evolution - Schema 演进（列增删改）",
+    "Time Travel - 历史版本查询",
+    "Data Skipping - 数据跳过，统计信息加速",
+    "Z-Ordering - 多维聚簇优化",
+    "Optimize - 优化小文件合并",
+    "Vacuum - 清理旧版本文件",
+    "Merge (Upsert) - 合并操作，支持更新和插入",
+    "Change Data Feed - 变更数据流"
+  ],
+  "configurations": {
+    "table": {
+      "delta.deletedFileRetentionDuration": "interval 30 days",
+      "delta.logRetentionDuration": "interval 30 days",
+      "delta.autoOptimize.optimizeWrite": true,
+      "delta.autoOptimize.autoCompact": true
+    },
+    "engine": {
+      "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
+      "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+    }
+  },
+  "common_operations": [
+    "CREATE TABLE table (...) USING delta PARTITIONED BY (date)",
+    "INSERT INTO table VALUES (...)",
+    "UPDATE table SET col=val WHERE condition",
+    "DELETE FROM table WHERE condition",
+    "MERGE INTO target t USING source s ON t.id=s.id WHEN MATCHED THEN UPDATE ... WHEN NOT MATCHED THEN INSERT ...",
+    "SELECT * FROM table VERSION AS OF 123456",
+    "SELECT * FROM table TIMESTAMP AS OF '2024-01-15 00:00:00'",
+    "RESTORE table TO VERSION AS OF 10",
+    "OPTIMIZE table ZORDER BY (col1, col2)",
+    "VACUUM table RETAIN 168 HOURS"
+  ],
+  "schema_evolution": {
+    "add_column": "ALTER TABLE table ADD COLUMNS (new_col STRING)",
+    "drop_column": "ALTER TABLE table DROP COLUMN col_name",
+    "rename_column": "ALTER TABLE table RENAME COLUMN old_name TO new_name",
+    "change_type": "ALTER TABLE table ALTER COLUMN col_name TYPE BIGINT",
+    "merge_schema": "SET delta.schemaMerge垢ation.enabled=true",
+    "overwrite_schema": "ALTER TABLE table REPLACE ALL"
+  },
+  "time_travel": {
+    "by_version": "SELECT * FROM table VERSION AS OF 10",
+    "by_timestamp": "SELECT * FROM table TIMESTAMP AS OF '2024-01-15'",
+    "history": "DESCRIBE HISTORY table",
+    "restore": "RESTORE table TO VERSION AS OF 10"
+  },
+  "change_data_feed": {
+    "enable": "ALTER TABLE table SET TBLPROPERTIES (delta.enableChangeDataFeed=true)",
+    "read": "SELECT * FROM table CHANGES SINCE 10",
+    "format": "记录 INSERT/UPDATE/UPDATE_BEFORE/UPDATE_AFTER/DELETE"
+  },
+  "optimization": {
+    "optimize": {
+      "description": "合并小文件，优化查询性能",
+      "sql": "OPTIMIZE table",
+      "zorder": "OPTIMIZE table ZORDER BY (col1, col2)"
+    },
+    "auto_optimize": {
+      "write": "SET delta.autoOptimize.optimizeWrite=true",
+      "compact": "SET delta.autoOptimize.autoCompact=true"
+    },
+    "file_sizing": {
+      "target_size": "ALTER TABLE table SET TBLPROPERTIES (delta.targetFileSize='128mb')"
+    }
+  },
+  "best_practices": [
+    "使用 MERGE 进行 Upsert 操作",
+    "开启 Auto Optimize 提升写入性能",
+    "定期执行 OPTIMIZE 合并小文件",
+    "配置合理的文件保留策略",
+    "使用 Z-ORDERING 优化多维查询",
+    "开启 Change Data Feed 支持增量读取",
+    "使用 RESTORE 进行数据回滚"
+  ],
+  "use_cases": [
+    "ACID 数据湖 - 事务性数据存储",
+    "时间旅行 - 历史版本查询和回滚",
+    "Schema 演进 - 动态 Schema 变更",
+    "CDC 入湖 - 变更数据捕获",
+    "数据治理 - 完整数据血缘"
+  ],
+  "integrations": {
+    "spark": {
+      "maven": "io.delta:delta-core_2.12:2.4.0",
+      "extensions": "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension"
+    },
+    "flink": {
+      "method": "Delta Sink via File System",
+      "format": "delta"
+    },
+    "databricks": {
+      "native": "Databricks 平台原生支持"
+    }
+  },
+  "related_docs": [
+    "docs/04-data-lake/delta-lake/01-architecture.md",
+    "docs/04-data-lake/delta-lake/02-usage.md",
+    "docs/04-data-lake/delta-lake/03-spark-sql.md",
+    "docs/04-data-lake/delta-lake/04-flink-sql.md"
+  ]
+}

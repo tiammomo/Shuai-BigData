@@ -1,62 +1,191 @@
 {
   "name": "Apache Flink",
-  "description": "分布式流处理引擎，支持精确一次语义、状态管理、窗口操作、Checkpoint",
+  "description": "分布式流处理引擎，支持精确一次语义、状态管理、窗口操作、Checkpoint 和 Savepoint",
   "category": "流处理",
   "key_concepts": [
     "DataStream API - 基础流处理编程模型",
     "Table API/SQL - 声明式流处理语言",
-    "有状态计算 - Keyed State / Operator State / Broadcast State",
+    "有状态计算 - Keyed State (Value/Map/List/Reducing) / Operator State (List/Union)",
+    "广播状态 - Broadcast State，支持规则动态更新",
     "窗口操作 - Tumbling / Sliding / Session / Global",
     "时间语义 - Event Time / Processing Time / Ingestion Time",
-    "Watermark - 水位线，事件时间进度标记",
-    "Checkpoint - 精确一次容错机制",
-    "Savepoint - 手动触发的状态快照",
-    "CEP - 复杂事件处理模式匹配",
-    "异步 I/O - 异步访问外部系统",
+    "Watermark - 水位线，事件时间进度标记，处理乱序",
+    "Checkpoint - 精确一次容错机制，周期快照",
+    "Savepoint - 手动触发的状态快照，用于升级迁移",
+    "CEP - 复杂事件处理，模式匹配检测",
+    "异步 I/O - 异步访问外部系统，提升吞吐",
     "背压处理 - 反压机制和解决策略",
-    "双流 Join - 事件时间双流关联"
+    "双流 Join - 事件时间双流关联 (Interval Join)",
+    "端到端一致性 - Source 到 Sink 的精确一次保证"
   ],
   "configurations": {
     "checkpoint": {
       "execution.checkpointing.interval": "1min",
       "execution.checkpointing.mode": "EXACTLY_ONCE",
       "execution.checkpointing.timeout": "10min",
-      "state.backend": "rocksdb"
+      "execution.checkpointing.externalized": "RETAIN_ON_CANCELLATION",
+      "state.backend": "rocksdb",
+      "state.backend.incremental": true,
+      "state.checkpoints.num-retained": 5
     },
     "parallelism": {
-      "parallelism.default": "4",
-      "taskmanager.numberOfTaskSlots": "2"
+      "parallelism.default": 4,
+      "taskmanager.numberOfTaskSlots": 2,
+      "taskmanager parallelism": 1
     },
     "memory": {
       "taskmanager.memory.process.size": "4G",
-      "taskmanager.memory.flink.size": "3G"
+      "taskmanager.memory.flink.size": "3G",
+      "taskmanager.memory.managed.fraction": 0.4
+    },
+    "table": {
+      "table.exec.source.cdc-events-duplicate": true,
+      "table.optimizer.agg-phase-strategy": "TWO_PHASE"
     }
   },
   "common_operations": [
     "flink run -p 4 -c com.example.Job jarFile.jar",
+    "flink run -d -t yarn-per-job -yqu root.default -yjm 4G -ytm 8G jarFile.jar",
+    "flink run -d -t kubernetes-session -Dkubernetes.cluster-id=flink-job jarFile.jar",
     "flink savepoint <jobId> [targetDirectory]",
     "flink cancel -s [targetDirectory] <jobId>",
     "flink list",
-    "flink info <jobId>"
+    "flink info <jobId>",
+    "flink modify <jobId> -p 8"
   ],
-  "integrations": [
-    "Kafka -> Flink (KafkaSource/KafkaSink)",
-    "Flink -> ClickHouse (JDBC Sink)",
-    "Flink -> Doris (Doris Stream Load)",
-    "Flink -> HDFS (StreamingFileSink)"
-  ],
+  "time_characteristics": {
+    "event_time": {
+      "description": "事件时间，基于数据本身的时间戳",
+      "config": "env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)",
+      "assign": "dataStream.assignTimestampsAndWatermarks(...)"
+    },
+    "processing_time": {
+      "description": "处理时间，基于服务器时间",
+      "config": "env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime)"
+    },
+    "ingestion_time": {
+      "description": "摄入时间，数据进入 Flink 的时间",
+      "config": "env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime)"
+    }
+  },
+  "watermark_strategies": {
+    "fixed_delay": {
+      "description": "固定延迟策略",
+      "code": "WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(10))"
+    },
+    "increasing": {
+      "description": "递增策略，无延迟",
+      "code": "WatermarkStrategy.forMonotonousTimestamps()"
+    },
+    "periodic": {
+      "description": "周期性生成",
+      "code": ".withTimestampAssigner(...).withIdleness(Duration.ofMinutes(1))"
+    }
+  },
+  "windows": {
+    "tumbling": {
+      "description": "滚动窗口，不重叠",
+      "code": "dataStream.keyBy(...).window(TumblingEventTimeWindows.of(Time.minutes(5)))"
+    },
+    "sliding": {
+      "description": "滑动窗口，可重叠",
+      "code": "dataStream.keyBy(...).window(SlidingEventTimeWindows.of(Time.minutes(10), Time.minutes(5)))"
+    },
+    "session": {
+      "description": "会话窗口，基于活动间隔",
+      "code": "dataStream.keyBy(...).window(EventTimeSessionWindows.withGap(Time.minutes(10)))"
+    },
+    "global": {
+      "description": "全局窗口，全量计算",
+      "code": "dataStream.keyBy(...).window(GlobalWindows.create())"
+    }
+  },
+  "state_management": {
+    "keyed_state": {
+      "ValueState": "单个值状态",
+      "ListState": "列表状态",
+      "MapState": "键值状态",
+      "ReducingState": "自动聚合状态"
+    },
+    "operator_state": {
+      "ListState": "所有并行度列表",
+      "UnionListState": "全量广播列表",
+      "BroadcastState": "规则广播状态"
+    }
+  },
+  "connectors": {
+    "kafka": {
+      "source": "KafkaSource.builder().setTopics(\"topic\").setStartingOffsets(OffsetsInitializer.latest()).build()",
+      "sink": "KafkaSink.builder().setBootstrapServers(\"localhost:9092\").setRecordSerializer(...).build()",
+      "formats": "JSON, Avro, Debezium, Canal"
+    },
+    "hdfs": {
+      "sink": "StreamingFileSink.forBulkFormat(path, ParquetWriterFactory.forAvroParquetWriter(...))"
+    },
+    "jdbc": {
+      "sink": "JDBCExecutionOptions.builder().withBatchSize(1000).build()",
+      "lookup": "AsyncJDBCLookups"
+    },
+    "paimon": {
+      "sink": "PaimonSink.builder().withDatabase(\"db\").withTable(\"table\").build()"
+    }
+  },
+  "integrations": {
+    "kafka": {
+      "source": "KafkaSource<KafkaRecord> source = KafkaSource.builder()...build()",
+      "sink": "KafkaSink.<String>builder().setBootstrapServers(\"localhost:9092\")...build()"
+    },
+    "clickhouse": {
+      "method": "JDBC Sink / ClickHouse File",
+      "maven": "org.apache.flink:flink-connector-jdbc:3.1.1-1.18"
+    },
+    "doris": {
+      "method": "Doris Stream Load / Flink-Doris-Connector",
+      "maven": "org.apache.doris:flink-doris-connector-1.16:1.4.0"
+    },
+    "paimon": {
+      "method": "Paimon Sink",
+      "maven": "org.apache.paimon:paimon-flink-1.16:1.1.0"
+    },
+    "cdc": {
+      "mysql": "MySQL-CDC source with Flink SQL",
+      "postgres": "PostgreSQL-CDC source"
+    }
+  },
   "best_practices": [
-    "使用 Event Time 处理乱序数据",
-    "合理设置 Watermark 策略",
-    "定期做 Savepoint 用于版本升级",
+    "使用 Event Time 处理乱序数据，必须设置 Watermark",
+    "合理设置 Watermark 延迟，避免过多迟到数据",
+    "定期做 Savepoint 用于版本升级和故障恢复",
     "使用异步 I/O 提升外部访问吞吐",
-    "状态后端选择 RocksDB 避免 OOM"
+    "状态后端选择 RocksDB 避免 OOM",
+    "大状态使用增量 Checkpoint 减少停顿",
+    "使用广播状态实现规则动态更新",
+    "合理设置 Checkpoint 间隔和超时时间"
   ],
+  "optimization": {
+    "checkpoint": {
+      "tuning": "减少 Checkpoint 间隔，使用增量 RocksDB",
+      "unaligned": "开启非对齐 Checkpoint 减少反压影响"
+    },
+    "state": {
+      "ttl": "设置状态 TTL 自动清理过期数据",
+      "rocksdb": "调优 RocksDB 内存和线程"
+    },
+    "memory": {
+      "managed": "开启内存管理，合理分配内存",
+      "offheap": "大状态使用 Off-Heap 内存"
+    },
+    "network": {
+      "buffer": "调整网络缓冲区大小",
+      "credit": "调整信用式背压策略"
+    }
+  },
   "use_cases": [
-    "实时数据ETL",
-    "实时指标统计",
-    "风控规则检测",
-    "实时推荐系统"
+    "实时数据 ETL - Kafka 到数仓",
+    "实时指标统计 - PV/UV/GMV 实时计算",
+    "风控规则检测 - 异常交易识别",
+    "实时推荐系统 - 特征实时更新",
+    "CDC 数据同步 - 数据库变更实时捕获"
   ],
   "related_docs": [
     "docs/01-stream-processing/flink/01-architecture.md",
